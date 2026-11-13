@@ -41,10 +41,8 @@ export default function ParentPage() {
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
     // Browsers need a tap before sound: wake the audio on the very first touch anywhere.
-    const wake = () => {
-      unlockAudio();
-      setSoundReady(true);
-    };
+    // (It only wakes the audio; the banner hides when its own button is tapped, which also asks for notifications.)
+    const wake = () => unlockAudio();
     document.addEventListener("pointerdown", wake, { once: true });
     return () => document.removeEventListener("pointerdown", wake);
   }, [childId]);
