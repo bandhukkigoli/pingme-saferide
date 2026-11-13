@@ -81,6 +81,8 @@ export default function Takeover({ childId, events, lang, nearMode }: Props) {
       if (queuedIds.current.has(e.id)) return false;
       // Red events the parent still has to answer are always shown.
       if (firstLook && e.alarm === "red" && e.needsResponse && e.response === null) return true;
+      // Page reopened/reloaded while the newest alert is an unanswered alarm: ring again.
+      if (firstLook && e.id === maxId && e.alarm !== "info" && e.response === null) return true;
       // Very first visit ever: everything already there counts as seen.
       if (firstLook && !stored) return false;
       return e.id > seenBefore;
