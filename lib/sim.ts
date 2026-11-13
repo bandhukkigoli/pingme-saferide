@@ -398,10 +398,11 @@ async function escalate(trip: TripRow, t: number) {
 }
 
 // Radius ("bus is near") and "arriving now" alerts, measured along the road.
-async function radiusAlerts(trip: TripRow, plan: Plan, t: number) {
+// fromT..t = the stretch of simulated time since the previous check. We look at the whole stretch
+// (every 0.1 sim-minute) so a fast bus can't slip through the radius between two polls.
+async function radiusAlerts(trip: TripRow, plan: Plan, fromT: number, t: number) {
   if (trip.status === "closed") return;
   const { d } = busAt(plan, t);
-  const speed = avgSpeed(plan, t);
   const riders = await q<RiderRow & { radius: number | null }>(
     `SELECT a.child_id, a.state, c.name, c.class_section, c.stop_id, p.alert_radius_m AS radius
        FROM attendance a JOIN children c ON c.id = a.child_id LEFT JOIN parent_prefs p ON p.child_id = a.child_id
@@ -414,17 +415,27 @@ async function radiusAlerts(trip: TripRow, plan: Plan, t: number) {
     if (!relevant) continue;
     const idx = plan.stops.findIndex((s) => s.id === r.stop_id);
     if (idx < 0) continue;
-    const remaining = plan.dist[idx] - d;
-    if (remaining < 0 || t >= plan.depart[idx]) continue; // bus already left that stop
+    if (idx === 0) continue; // first stop: the bus starts there, no warning needed
     const stop = plan.stops[idx].name;
     const radius = r.radius ?? 1000;
     const base = { bus: plan.busName, stop, child: firstName(r.name), morning };
-    if (remaining <= ARRIVING_M) {
-      if (idx === 0 && t < 0.5) continue; // first stop at the very start: the bus is simply there
+
+    // "Bus is near": the first moment in fromT..t when the bus was inside the radius
+    // but still more than 150 m away (and had not left the stop yet).
+    for (let s = Math.max(0, fromT); s <= t + 1e-9; s = Math.min(t, s + 0.1)) {
+      const rem = plan.dist[idx] - busAt(plan, s).d;
+      if (rem > ARRIVING_M && rem <= radius && s < plan.depart[idx]) {
+        const minutes = Math.max(1, Math.round(rem / avgSpeed(plan, s)));
+        await addEvent(trip.id, r.child_id, "near", "amber", "near", { ...base, distM: Math.round(rem), minutes }, s, `near:${trip.id}:${r.child_id}`);
+        break;
+      }
+      if (s >= t) break;
+    }
+
+    // "Arriving now": within 150 m right now (the stop-arrival step also fires it as a backup).
+    const remaining = plan.dist[idx] - d;
+    if (remaining >= 0 && remaining <= ARRIVING_M && t < plan.depart[idx]) {
       await addEvent(trip.id, r.child_id, "arriving", "amber", "near", base, t, `arriving:${trip.id}:${r.child_id}`);
-    } else if (remaining <= radius) {
-      const minutes = Math.max(1, Math.round(remaining / speed));
-      await addEvent(trip.id, r.child_id, "near", "amber", "near", { ...base, distM: Math.round(remaining), minutes }, t, `near:${trip.id}:${r.child_id}`);
     }
   }
 }
@@ -434,6 +445,8 @@ export async function advanceTrip(trip: TripRow, plan: Plan, nowMs: number): Pro
   const t = simMinutes(trip, nowMs);
   const target = Math.floor(t);
   const from = trip.last_processed_step + 1;
+  // Radius alerts first, while children still have their pre-step state (waiting / on board).
+  await radiusAlerts(trip, plan, Math.max(0, trip.last_processed_step), t);
   if (target >= from && (trip.status === "running" || trip.status === "paused")) {
     // Claim the steps [from..target]. If another request already claimed them, we skip.
     const claimed = await q("UPDATE trips SET last_processed_step=$2 WHERE id=$1 AND last_processed_step=$3 RETURNING id", [trip.id, target, trip.last_processed_step]);
@@ -453,7 +466,6 @@ export async function advanceTrip(trip: TripRow, plan: Plan, nowMs: number): Pro
       }
     }
   }
-  await radiusAlerts(trip, plan, t);
   const open = await escalate(trip, t);
   // Freeze the clock of a closed trip once nothing is left to resolve.
   if (trip.status === "closed" && !trip.paused_at && open === 0) {

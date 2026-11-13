@@ -7,8 +7,15 @@ const BASE = process.env.BASE || "http://localhost:3000";
 const AARAV = 1;
 let failures = 0;
 
-async function api(path, body, method = body ? "POST" : "GET") {
-  const res = await fetch(BASE + path, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+async function api(path, body, method = body ? "POST" : "GET", tries = 3) {
+  let res;
+  try {
+    res = await fetch(BASE + path, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+  } catch (e) {
+    // A dropped connection on a phone network is retried, like the real pages do on their next poll.
+    if (tries > 1) return api(path, body, method, tries - 1);
+    throw e;
+  }
   const json = await res.json();
   if (!res.ok) throw new Error(`${path}: ${json.error}`);
   return json;
