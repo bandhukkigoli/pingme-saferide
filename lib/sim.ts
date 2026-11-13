@@ -477,11 +477,13 @@ export async function advanceTrip(trip: TripRow, plan: Plan, nowMs: number): Pro
 export async function advanceAll(nowMs = Date.now()) {
   const buses = await loadPlans();
   let trips = await q<TripRow>("SELECT * FROM trips WHERE active ORDER BY bus_id DESC");
-  for (const tr of trips) {
-    const b = buses.get(tr.bus_id);
-    if (!b) continue;
-    await advanceTrip(tr, makePlan(tr.bus_id, b.name, b.route, b.stops, tr.kind), nowMs);
-  }
+  // Every bus is caught up at the same time (they don't depend on each other) = faster polls.
+  await Promise.all(
+    trips.map((tr) => {
+      const b = buses.get(tr.bus_id);
+      return b ? advanceTrip(tr, makePlan(tr.bus_id, b.name, b.route, b.stops, tr.kind), nowMs) : null;
+    })
+  );
   trips = await q<TripRow>("SELECT * FROM trips WHERE active ORDER BY bus_id DESC");
   return { buses, trips };
 }

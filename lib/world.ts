@@ -34,9 +34,9 @@ export async function getRoutes(): Promise<{ version: number; buses: BusRoute[] 
 }
 
 export async function buildWorld(childId: number | null): Promise<World> {
-  await applyDueRequests();
   const now = Date.now();
-  const { buses, trips } = await advanceAll(now);
+  // Approved requests and the bus catch-up don't depend on each other: run both at once.
+  const [, { buses, trips }] = await Promise.all([applyDueRequests(), advanceAll(now)]);
   const tripIds = trips.map((t) => t.id);
   const tripIdList = tripIds.length ? tripIds : [-1];
 
