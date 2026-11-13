@@ -97,12 +97,15 @@ export default function Takeover({ childId, events, lang, nearMode }: Props) {
       queueRef.current.push(e);
     });
 
-    // Never keep ringing for an alert that no longer makes sense:
-    // - it was deleted (the demo was reset or a new trip started), or
-    // - it is a "bus is near" alert and something newer already happened (arriving, boarded...).
-    const stale = (x: ParentEvent) => !events.some((e) => e.id === x.id) || (x.alarm === "near" && maxId > x.id);
-    queueRef.current = queueRef.current.filter((x) => !stale(x));
-    if (activeRef.current && stale(activeRef.current)) close(); // close() also shows the next one
+    // 1) An alert that was deleted (demo reset / new trip) must never keep ringing.
+    const gone = (x: ParentEvent) => !events.some((e) => e.id === x.id);
+    // 2) "Bus is near" then "Arriving now": only the newest of these two needs to ring.
+    const newerNear = (x: ParentEvent) =>
+      x.alarm === "near" && (queueRef.current.some((q) => q.alarm === "near" && q.id > x.id) || events.some((e) => e.alarm === "near" && e.id > x.id && queuedIds.current.has(e.id)));
+    queueRef.current = queueRef.current.filter((x) => !gone(x) && !newerNear(x));
+    const a = activeRef.current;
+    // Close the one on screen only if it was deleted, or a newer "near" alarm replaces it (keeps ringing seamlessly).
+    if (a && (gone(a) || newerNear(a))) close(); // close() also shows the next one
     else pump();
   }, [events, childId, pump, close]);
 
