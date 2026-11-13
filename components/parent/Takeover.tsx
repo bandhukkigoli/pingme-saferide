@@ -96,8 +96,15 @@ export default function Takeover({ childId, events, lang, nearMode }: Props) {
       queuedIds.current.add(e.id);
       queueRef.current.push(e);
     });
-    pump();
-  }, [events, childId, pump]);
+
+    // Never keep ringing for an alert that no longer makes sense:
+    // - it was deleted (the demo was reset or a new trip started), or
+    // - it is a "bus is near" alert and something newer already happened (arriving, boarded...).
+    const stale = (x: ParentEvent) => !events.some((e) => e.id === x.id) || (x.alarm === "near" && maxId > x.id);
+    queueRef.current = queueRef.current.filter((x) => !stale(x));
+    if (activeRef.current && stale(activeRef.current)) close(); // close() also shows the next one
+    else pump();
+  }, [events, childId, pump, close]);
 
   // 2) When an event goes on screen: sound, vibration, notification, auto-dismiss.
   useEffect(() => {
