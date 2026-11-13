@@ -37,15 +37,16 @@ export default function RoleBar() {
   }, [current, path]);
 
   return (
-    <nav className="sticky top-0 z-[1000] flex items-center gap-1 overflow-x-auto border-b border-[var(--line)] bg-white px-2 py-1 text-[13px]">
-      <Link href="/" className="mr-1 flex flex-none items-center" aria-label="Home">
+    <nav className="sticky top-0 z-[1000] flex items-center gap-0.5 overflow-x-auto border-b border-[var(--line)] bg-white px-1.5 py-1 text-[12.5px]">
+      {/* Small padding + font so the logo and all five tabs fit on a 375 px screen */}
+      <Link href="/" className="mr-0.5 flex flex-none items-center" aria-label="Home">
         <Logo size={26} />
       </Link>
       {ROLES.map((r) => (
         <Link
           key={r.key}
           href={r.key === "parent" ? parentHref : r.href}
-          className={`flex-none rounded-full px-3 py-2 ${current === r.key ? "bg-[var(--teal)] text-white" : "text-[var(--ink)] hover:bg-[var(--tealL)]"}`}
+          className={`flex min-h-[40px] flex-none items-center rounded-full px-2.5 ${current === r.key ? "bg-[var(--teal)] text-white" : "text-[var(--ink)] hover:bg-[var(--tealL)]"}`}
         >
           {r.label}
         </Link>

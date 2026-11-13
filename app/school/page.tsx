@@ -43,21 +43,34 @@ export default function SchoolPage() {
   const isMorning = (anyTrip?.trip?.kind ?? "morning") === "morning";
   const clock = anyTrip?.trip?.simClockText ?? "";
 
+  // Children whose attendance is a problem or still in progress (not "—", "In class", "Home stop ✓", "Handed to school").
+  const calm = (v: string) => v === "—" || /In class|Home stop|Handed/.test(v);
+  const attention = world.buses.flatMap((b) => b.riders.filter((r) => !calm(r.attendance)).map((r) => ({ busName: b.busName, r })));
+
+  // One line of the live log.
+  const logLine = (l: (typeof world.log)[number]) => (
+    <div key={l.id} style={{ padding: "2px 0" }}>
+      <span className="mut">{l.simTimeText}</span>{" "}
+      <span style={{ color: l.kind === "alert" ? "#A32D2D" : l.kind === "ok" ? "#3B6D11" : "inherit" }}>{l.text}</span>
+    </div>
+  );
+
   return (
     <main style={{ maxWidth: 1100, margin: "0 auto", padding: 14 }}>
       {error && <div className="alert" style={{ marginTop: 0, marginBottom: 8, fontSize: 13 }}>{error}</div>}
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
         <div style={{ fontWeight: 600, fontSize: 17 }}>Transport desk · PEC School</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="mut" style={{ fontSize: 13 }}>{clock}</span>
-          <Link href="/school/approvals">
-            <button style={{ minHeight: 48 }}>Approvals ({world.pendingRequests})</button>
-          </Link>
-          <Link href="/school/routes">
-            <button style={{ minHeight: 48 }}>Routes</button>
-          </Link>
-        </div>
+        <span className="mut" style={{ fontSize: 13 }}>{clock}</span>
+      </div>
+      {/* Approvals + Routes in one tidy row under the title */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, margin: "8px 0 10px" }}>
+        <Link href="/school/approvals">
+          <button style={{ minHeight: 48, width: "100%" }}>Approvals ({world.pendingRequests})</button>
+        </Link>
+        <Link href="/school/routes">
+          <button style={{ minHeight: 48, width: "100%" }}>Routes</button>
+        </Link>
       </div>
 
       {/* KPIs */}
@@ -103,33 +116,58 @@ export default function SchoolPage() {
           <div style={{ fontWeight: 600, fontSize: 14 }}>
             {isMorning ? "Attendance check · bus scans vs class register" : "Drop-off check"}
           </div>
-          {world.buses.map((b) => (
-            <div key={b.busId} style={{ marginTop: 8 }}>
-              <div className="mut" style={{ fontSize: 12, fontWeight: 600 }}>{b.busName}</div>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-                <tbody>
-                  {b.riders.map((r) => (
-                    <tr key={r.childId} style={{ borderBottom: "1px solid var(--line)" }}>
-                      <td style={{ padding: "8px 0" }}>{r.name}</td>
-                      <td className="mut" style={{ padding: "8px 6px" }}>{r.classSection}</td>
-                      <td style={{ textAlign: "right" }}><span className={`chip ${attClass(r.attendance)}`}>{r.attendance}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
+          {/* Default view: only children who need a look. The full table is one tap away. */}
+          <div style={{ fontWeight: 600, fontSize: 13, marginTop: 8 }}>Needs attention ({attention.length})</div>
+          {attention.length === 0 ? (
+            <div className="mut" style={{ fontSize: 13, marginTop: 6 }}>All children accounted for ✓</div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <tbody>
+                {attention.map(({ busName, r }) => (
+                  <tr key={r.childId} style={{ borderBottom: "1px solid var(--line)" }}>
+                    <td style={{ padding: "8px 0" }}>{r.name} <span className="mut" style={{ fontSize: 12 }}>{busName}</span></td>
+                    <td className="mut" style={{ padding: "8px 6px" }}>{r.classSection}</td>
+                    <td style={{ textAlign: "right" }}><span className={`chip ${attClass(r.attendance)}`}>{r.attendance}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
-          <div style={{ fontWeight: 600, fontSize: 14, marginTop: 14 }}>Live log</div>
-          <div style={{ fontSize: 12, maxHeight: 260, overflowY: "auto", marginTop: 4 }}>
-            {world.log.length === 0 && <div className="mut">Nothing yet.</div>}
-            {world.log.map((l) => (
-              <div key={l.id} style={{ padding: "2px 0" }}>
-                <span className="mut">{l.simTimeText}</span>{" "}
-                <span style={{ color: l.kind === "alert" ? "#A32D2D" : l.kind === "ok" ? "#3B6D11" : "inherit" }}>{l.text}</span>
+          <details style={{ marginTop: 10 }}>
+            <summary style={{ minHeight: 48, display: "flex", alignItems: "center", cursor: "pointer", fontWeight: 600, fontSize: 14 }}>
+              Show all children ({allRiders.length})
+            </summary>
+            {world.buses.map((b) => (
+              <div key={b.busId} style={{ marginTop: 8 }}>
+                <div className="mut" style={{ fontSize: 12, fontWeight: 600 }}>{b.busName}</div>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+                  <tbody>
+                    {b.riders.map((r) => (
+                      <tr key={r.childId} style={{ borderBottom: "1px solid var(--line)" }}>
+                        <td style={{ padding: "8px 0" }}>{r.name}</td>
+                        <td className="mut" style={{ padding: "8px 6px" }}>{r.classSection}</td>
+                        <td style={{ textAlign: "right" }}><span className={`chip ${attClass(r.attendance)}`}>{r.attendance}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ))}
+          </details>
+
+          <div style={{ fontWeight: 600, fontSize: 14, marginTop: 14 }}>Live log</div>
+          {/* Newest 6 lines only; the rest sits behind "Show full log" */}
+          <div style={{ fontSize: 12, marginTop: 4 }}>
+            {world.log.length === 0 && <div className="mut">Nothing yet.</div>}
+            {world.log.slice(0, 6).map(logLine)}
           </div>
+          {world.log.length > 6 && (
+            <details>
+              <summary style={{ minHeight: 48, display: "flex", alignItems: "center", cursor: "pointer", fontWeight: 600, fontSize: 13 }}>Show full log</summary>
+              <div style={{ fontSize: 12, maxHeight: 260, overflowY: "auto" }}>{world.log.slice(6).map(logLine)}</div>
+            </details>
+          )}
         </div>
       </div>
 

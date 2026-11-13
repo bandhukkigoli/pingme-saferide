@@ -23,7 +23,7 @@ export interface BusMapProps {
 // A round teal marker with the bus number inside, like the reference demo.
 function busIcon(label: string) {
   return L.divIcon({
-    className: "",
+    className: "bus-marker", // CSS makes it glide smoothly between 1.5 s updates
     html: `<div style="width:28px;height:28px;border-radius:50%;background:#0F6E56;border:3px solid #fff;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.35)">${label}</div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],

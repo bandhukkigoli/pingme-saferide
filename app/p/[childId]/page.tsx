@@ -116,24 +116,20 @@ export default function ParentPage() {
   else if (!trip || trip.status === "idle" || trip.status === "closed") etaLine = t(lang, "eta_none", { bus: busText });
   else etaLine = t(lang, "eta_passed", { bus: busText });
 
+  // Left-border colour of the status strip: blue on board, green safe (dropped),
+  // amber when the bus is inside the alert radius, grey otherwise.
+  let stripColour = "#9a9a92";
+  if (state === "dropped") stripColour = DOT.green;
+  else if (state === "onboard") stripColour = DOT.blue;
+  else if (me.eta && me.eta.distM <= radius) stripColour = DOT.amber;
+
   return (
     <main style={{ maxWidth: 480, margin: "0 auto", padding: "12px 12px 40px" }}>
       <Takeover childId={childId} events={me.events} lang={lang} nearMode={nearMode} />
 
-      {/* Top row: sim clock, trip name, language toggle */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
-        <span className="mut">
-          {trip?.simClockText ?? ""} {trip ? "· " : ""}
-          {tripName}
-        </span>
-        <button className="chip c-teal" onClick={toggleLang} style={{ minHeight: 48, minWidth: 48, fontSize: 13, border: "none" }} aria-label="Change language">
-          हिं / EN
-        </button>
-      </div>
-
-      {/* One-tap banner: browsers need a tap before they allow sound */}
+      {/* One-tap banner (only when needed): browsers need a tap before they allow sound */}
       {!soundReady && (
-        <div className="card" style={{ marginTop: 8, background: "var(--amberL)", borderColor: "#EBCB92" }}>
+        <div className="card" style={{ marginBottom: 8, background: "var(--amberL)", borderColor: "#EBCB92" }}>
           <div style={{ fontWeight: 600 }}>{t(lang, "sound_title")}</div>
           <div style={{ fontSize: 13, margin: "4px 0 10px" }}>{t(lang, "sound_why")}</div>
           <button className="pri" onClick={turnOnSound} style={{ width: "100%", minHeight: 52, fontWeight: 600 }}>
@@ -141,6 +137,18 @@ export default function ParentPage() {
           </button>
         </div>
       )}
+
+      {/* Thin top row: trip name + clock on the left, language toggle on the right */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
+        <span className="mut">
+          {tripName}
+          {trip ? " · " : ""}
+          {trip?.simClockText ?? ""}
+        </span>
+        <button className="chip c-teal" onClick={toggleLang} style={{ minHeight: 48, minWidth: 48, fontSize: 13, border: "none" }} aria-label="Change language">
+          हिं / EN
+        </button>
+      </div>
 
       {/* Child pass card */}
       <div className="pass" style={{ marginTop: 10 }}>
@@ -180,8 +188,10 @@ export default function ParentPage() {
         </div>
       </div>
 
-      {/* Live ETA line, always visible */}
-      <div style={{ marginTop: 10, fontSize: 15, fontWeight: 600, textAlign: "center" }}>{etaLine}</div>
+      {/* ONE big live status strip: the ETA line, with the status colour as a left border */}
+      <div className="card" style={{ marginTop: 10, fontSize: 17, fontWeight: 700, borderLeft: `6px solid ${stripColour}` }}>
+        {etaLine}
+      </div>
 
       {/* Live map */}
       <div style={{ marginTop: 10 }}>
@@ -192,8 +202,41 @@ export default function ParentPage() {
         )}
       </div>
 
+      {/* Day timeline */}
+      <div className="card" style={{ marginTop: 14 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>{t(lang, "today")}</div>
+        {me.events.length === 0 ? (
+          <div className="mut" style={{ fontSize: 13 }}>
+            {t(lang, "timeline_empty")}
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
+            {me.events.map((e) => (
+              <div key={e.id} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                <span style={{ color: DOT[e.color] }}>●</span>
+                <span>{eventText(lang, e).timeline}</span>
+                <span className="mut" style={{ marginLeft: "auto", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
+                  {e.simTimeText}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Settings: collapsed by default so the screen stays calm. One tap opens them. */}
+      <details className="card" style={{ marginTop: 14, padding: 0 }}>
+        <summary
+          style={{ minHeight: 52, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 14px", cursor: "pointer", fontWeight: 600, fontSize: 14, listStyle: "none" }}
+        >
+          <span>
+            ⚙ {t(lang, "settings")} · {fmtDist(radius)} · {t(lang, nearMode)}
+          </span>
+          <span className="mut" aria-hidden="true">▾</span>
+        </summary>
+        <div style={{ padding: "0 14px 14px" }}>
       {/* Alert distance */}
-      <div style={{ marginTop: 14, fontSize: 13, fontWeight: 600 }}>{t(lang, "alert_within")}</div>
+      <div style={{ fontSize: 13, fontWeight: 600 }}>{t(lang, "alert_within")}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginTop: 6 }}>
         {me.radiusOptions.map((o) => {
           const on = o.m === radius;
@@ -242,30 +285,9 @@ export default function ParentPage() {
         {t(lang, "red_note")}
       </div>
 
-      {/* Day timeline */}
-      <div className="card" style={{ marginTop: 14 }}>
-        <div style={{ fontWeight: 600, marginBottom: 8 }}>{t(lang, "today")}</div>
-        {me.events.length === 0 ? (
-          <div className="mut" style={{ fontSize: 13 }}>
-            {t(lang, "timeline_empty")}
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
-            {me.events.map((e) => (
-              <div key={e.id} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                <span style={{ color: DOT[e.color] }}>●</span>
-                <span>{eventText(lang, e).timeline}</span>
-                <span className="mut" style={{ marginLeft: "auto", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
-                  {e.simTimeText}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Change my stop */}
-      <StopChange childId={childId} routes={routes} lang={lang} />
+          <StopChange childId={childId} routes={routes} lang={lang} />
+        </div>
+      </details>
     </main>
   );
 }

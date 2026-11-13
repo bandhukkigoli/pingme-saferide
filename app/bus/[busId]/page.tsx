@@ -170,10 +170,11 @@ export default function AttendantPage() {
                 <div key={r.childId} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid var(--line)" }}>
                   <div className="av">{initials(r.name)}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 500 }}>{r.name}</div>
-                    <div className="mut" style={{ fontSize: 12 }}>{r.classSection} · {r.stopName}</div>
+                    {/* Long names are cut with "…" so the row never wraps on a 375 px phone */}
+                    <div style={{ fontSize: 14, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</div>
+                    <div className="mut" style={{ fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.classSection} · {r.stopName}</div>
                   </div>
-                  {statusChip(r)}
+                  <div style={{ flex: "none", whiteSpace: "nowrap" }}>{statusChip(r)}</div>
                   {(canOn || canOff) && (
                     <button
                       style={{ minHeight: 48, minWidth: 72 }}
