@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to demo PingME SafeRide</title>
+<style>
+  :root{--teal:#0F6E56;--teal2:#1D9E75;--tealL:#E1F5EE;--ink:#1d1d1b;--mut:#6b6a65;--line:#e4e2db;--bg:#f4f3ee;
+        --blue:#185FA5;--blueL:#E6F1FB;--amber:#BA7517;--amberL:#FAEEDA;--green:#3B6D11;--greenL:#EAF3DE;--red:#A32D2D;--redL:#FCEBEB}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+  header{background:var(--teal);color:#fff;padding:28px 20px 22px}
+  header .wrap{display:flex;gap:16px;align-items:center}
+  header h1{margin:0;font-size:28px}
+  header p{margin:4px 0 0;color:var(--tealL)}
+  nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap;padding:6px 12px}
+  nav a{display:inline-block;padding:8px 12px;border-radius:999px;color:var(--ink);text-decoration:none;font-size:14px}
+  nav a:hover{background:var(--tealL)}
+  .wrap{max-width:980px;margin:0 auto}
+  main{padding:8px 16px 60px}
+  section{margin-top:28px}
+  h2{font-size:22px;margin:0 0 10px}
+  h3{font-size:17px;margin:18px 0 6px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .chip{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;font-weight:600}
+  .c-blue{background:var(--blueL);color:#0C447C}.c-amber{background:var(--amberL);color:#633806}.c-green{background:var(--greenL);color:#27500A}.c-red{background:var(--redL);color:#791F1F}.c-teal{background:var(--tealL);color:#085041}
+  code,kbd{background:#f1efe8;border-radius:6px;padding:1px 6px;font-size:.92em}
+  a{color:var(--teal)}
+  .big-link{display:inline-block;background:var(--teal);color:#fff;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:600;margin:4px 6px 4px 0}
+  /* checklist */
+  .check li{list-style:none;margin:6px 0}
+  .check label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:8px 10px;border-radius:10px}
+  .check label:hover{background:#faf9f5}
+  .check input{width:20px;height:20px;margin-top:2px;accent-color:var(--teal);flex:none}
+  .check input:checked + span{color:var(--mut);text-decoration:line-through}
+  .check ul{padding:0;margin:0}
+  .progress{height:8px;background:#ece9e0;border-radius:999px;overflow:hidden;margin-top:8px}
+  .progress div{height:100%;background:var(--teal2);width:0;transition:width .3s}
+  /* script */
+  .step{display:grid;grid-template-columns:78px 1fr;gap:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:10px;transition:box-shadow .2s,border-color .2s}
+  .step.now{border-color:var(--teal2);box-shadow:0 0 0 3px rgba(29,158,117,.25)}
+  .time{font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}
+  .time small{display:block;color:var(--mut);font-weight:500}
+  .say{border-left:4px solid var(--teal2);background:var(--tealL);padding:8px 12px;border-radius:8px;margin:8px 0;font-style:italic}
+  .do{margin:6px 0 0;padding-left:20px}
+  .do li{margin:3px 0}
+  .see{font-size:14px;color:var(--mut)}
+  .shot{width:150px;border-radius:12px;border:1px solid var(--line);margin:8px 8px 0 0;vertical-align:top}
+  /* timer */
+  .timer{position:fixed;right:14px;bottom:14px;z-index:10;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.12);display:flex;gap:8px;align-items:center}
+  .timer b{font-size:22px;font-variant-numeric:tabular-nums;min-width:62px;text-align:center}
+  .timer button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer;font:inherit;font-size:14px}
+  .timer button.pri{background:var(--teal);border-color:var(--teal);color:#fff}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-weight:600}
+  details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-top:8px}
+  summary{cursor:pointer;font-weight:600}
+  .devices{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .device{background:#fff;border:2px solid var(--line);border-radius:18px;padding:14px}
+  .device .icon{font-size:30px}
+  .warn{background:var(--amberL);border:1px solid #f0d6a8;border-radius:12px;padding:10px 12px;margin-top:10px}
+  @media print{nav,.timer{display:none}.step{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <svg width="54" height="54" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="22" fill="#fff"/><path d="M30 22h36a8 8 0 0 1 8 8v40a8 8 0 0 1-8 8H30a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8z" fill="#E1F5EE"/><circle cx="48" cy="30" r="4" fill="#0F6E56"/><rect x="33" y="42" width="30" height="24" rx="5" fill="#0F6E56"/><rect x="37" y="46" width="22" height="9" rx="2" fill="#9FE1CB"/><circle cx="39" cy="61" r="2.5" fill="#E1F5EE"/><circle cx="57" cy="61" r="2.5" fill="#E1F5EE"/></svg>
+    <div>
+      <h1>How to demo PingME SafeRide</h1>
+      <p>A 5-minute live demo, step by step: what to open, what to click, what to say.</p>
+    </div>
+  </div>
+</header>
+<nav class="wrap">
+  <a href="#setup">1 · Setup</a><a href="#screens">2 · Screens</a><a href="#script">3 · 5-min script</a><a href="#scenarios">4 · Scenarios</a><a href="#lines">5 · Lines to say</a><a href="#trouble">6 · If something breaks</a>
+</nav>
+
+<main class="wrap">
+
+<section>
+  <div class="card">
+    <b>Live app:</b> <a href="https://pingme-saferide.vercel.app">pingme-saferide.vercel.app</a> · no login.<br>
+    <a class="big-link" href="https://pingme-saferide.vercel.app/admin/demo" target="_blank">Admin (demo control)</a>
+    <a class="big-link" href="https://pingme-saferide.vercel.app/school" target="_blank">School desk</a>
+    <a class="big-link" href="https://pingme-saferide.vercel.app/bus/4" target="_blank">Attendant · Bus 4</a>
+    <a class="big-link" href="https://pingme-saferide.vercel.app/admin/qr" target="_blank">QR sheet (+ judge /join QR)</a>
+    <a class="big-link" href="https://pingme-saferide.vercel.app/p/1" target="_blank">Parent of Aarav</a>
+    <p class="see" style="margin:6px 0 0">Tip: open this guide on your laptop next to the app. The timer at the bottom right keeps you on time and highlights the current step.</p>
+  </div>
+</section>
+
+<!-- ================= SETUP ================= -->
+<section id="setup">
+  <h2>1 · Setup (10 minutes before you present)</h2>
+  <div class="card">
+    <div class="see"><span id="done">0</span> of <span id="total">0</span> done</div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="check">
+      <h3>Laptop (on the projector)</h3>
+      <ul>
+        <li><label><input type="checkbox"><span>Open <b>/admin/demo</b> in one tab and <b>/school</b> in a second tab (links above). Zoom the browser to ~110% so the back row can read it.</span></label></li>
+        <li><label><input type="checkbox"><span>On /admin/demo press <b>Full reset (re-seed)</b> once. The world is now clean: no trips, no alerts, every child free for judges.</span></label></li>
+        <li><label><input type="checkbox"><span>Optional third tab: <b>/bus/4</b> (attendant), if you have no second phone for the attendant.</span></label></li>
+        <li><label><input type="checkbox"><span>Have <b>/admin/qr</b> ready (or printed). It has every child's bag-tag QR plus a big <b>“Scan to join the demo”</b> QR for judges.</span></label></li>
+      </ul>
+      <h3>Your phone = the parent</h3>
+      <ul>
+        <li><label><input type="checkbox"><span>Install the Android app from the home page (<b>📱 Get the Android app</b>) <i>or</i> just use Chrome. Open <b>/p/1</b> (Aarav's parent, the default scenario child).</span></label></li>
+        <li><label><input type="checkbox"><span>Tap <b>Turn on alarm sound</b> and <b>Allow</b> notifications. (Browsers need one tap before they may ring.)</span></label></li>
+        <li><label><input type="checkbox"><span><b>Do Not Disturb OFF</b> (it blocks vibration), media volume <b>up</b>, screen timeout long.</span></label></li>
+        <li><label><input type="checkbox"><span>Optional: share your phone screen to the projector (e.g. scrcpy, or just hold it up) so the room sees the alarm.</span></label></li>
+      </ul>
+      <h3>Second phone (optional) = the attendant</h3>
+      <ul>
+        <li><label><input type="checkbox"><span>Open <b>/bus/4</b>, tap <b>Scan bag tag</b> once and allow the camera.</span></label></li>
+      </ul>
+      <h3>Rehearse once</h3>
+      <ul>
+        <li><label><input type="checkbox"><span>Run <b>Normal · Morning · 4×</b> once end-to-end, then press <b>Reset</b>. Takes ~20 seconds and proves sound + map work on this network.</span></label></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREENS ================= -->
+<section id="screens">
+  <h2>2 · Who holds which screen</h2>
+  <div class="devices">
+    <div class="device"><div class="icon">💻</div><b>Laptop / projector</b><br><span class="see">Admin (you drive the demo) + School desk (the room watches this)</span></div>
+    <div class="device"><div class="icon">📱</div><b>Your phone</b><br><span class="see">Parent of Aarav: the alarms ring here</span></div>
+    <div class="device"><div class="icon">📱</div><b>Judges' phones</b><br><span class="see">Scan the /join QR → each gets their own child, live</span></div>
+    <div class="device"><div class="icon">🚌</div><b>Attendant (optional phone)</b><br><span class="see">/bus/4: scan bag tags, End trip, “Found”</span></div>
+  </div>
+  <p class="see">Every screen shows the <b>same live world</b> (it polls every 1.5 s). The role bar at the top of every page lets one person hop between roles.</p>
+</section>
+
+<!-- ================= SCRIPT ================= -->
+<section id="script">
+  <h2>3 · The 5-minute script</h2>
+  <p class="see">Speed tip: use <b>2×</b> while you talk through the map; use <b>4×</b> when you just want to reach the next moment. One morning trip ≈ 35 s at 2×, ≈ 18 s at 4×.</p>
+
+  <div class="step" data-at="0">
+    <div class="time">0:00<small>45 s</small></div>
+    <div>
+      <b>The hook: the Noida case</b>
+      <div class="say">“In Noida, a sleeping UKG child was locked inside a parked school bus for about seven hours. The school marked him absent, while transport records showed he had boarded. The data existed. Nobody connected it. Schools track buses, not children.”</div>
+      <div class="say">“PingME already sells QR bag tags. SafeRide reuses that tag: the attendant scans it on and off the bus, so parents and the school always know where the <u>child</u> is.”</div>
+    </div>
+  </div>
+
+  <div class="step" data-at="45">
+    <div class="time">0:45<small>30 s</small></div>
+    <div>
+      <b>Judges join in (no app, no login)</b>
+      <ul class="do">
+        <li>Show the big <b>“Scan to join the demo”</b> QR on <code>/admin/qr</code>.</li>
+        <li>Judges scan → tap <b>Parent</b> → each gets a <b>different child</b> and a live pass card.</li>
+      </ul>
+      <div class="say">“Each of you is now a parent. Keep your phone out. It may ring.”</div>
+    </div>
+  </div>
+
+  <div class="step" data-at="75">
+    <div class="time">1:15<small>60 s</small></div>
+    <div>
+      <b>Scenario 1 · Normal morning</b> <span class="chip c-amber">amber</span> <span class="chip c-blue">blue</span> <span class="chip c-green">green</span>
+      <ul class="do">
+        <li>Admin: <b>Normal day · Morning · 2×</b>, target <b>Aarav</b> → <b>Start</b>.</li>
+        <li>On your phone point at: the <b>pass card</b>, the live line <b>“Bus 4 · 2.3 km away · ~9 min”</b>, the bus moving on <b>real Chandigarh roads</b>, and the dashed <b>radius ring</b> (open <b>⚙ Alert settings</b> to show 300 m / 500 m / 1 km / 2 km with minutes).</li>
+        <li>Bus enters 1 km → <b>full-screen ALARM</b> rings + vibrates: tap <b>I'm going</b>. Then “Arriving now”, then <b>boarded (blue)</b>, then <b>reached school (green)</b>.</li>
+      </ul>
+      <div class="say">“The parent picks how far away to be warned, and sees the real road distance and minutes. Not a guess: it uses the bus's measured speed.”</div>
+      <img class="shot" src="screenshots/04-parent-pass-map-eta.png" alt="Parent page"><img class="shot" src="screenshots/06-parent-ALARM-bus-is-near.png" alt="Alarm">
+    </div>
+  </div>
+
+  <div class="step" data-at="135">
+    <div class="time">2:15<small>60 s</small></div>
+    <div>
+      <b>Scenario 4 · Left on bus: the Noida fix</b> <span class="chip c-red">red</span>
+      <ul class="do">
+        <li>Admin: <b>Reset</b> → <b>Left on bus · Morning · 4×</b> → <b>Start</b>. Switch the projector to the <b>School</b> tab.</li>
+        <li>At school the trip tries to close → <b>BLOCKED</b>. School desk: <b>“Aarav boarded but is NOT in class 3-B”</b>. Parent phone: red alarm.</li>
+        <li>Wait a few seconds: the alert <b>escalates</b> Attendant → Transport in-charge → Principal.</li>
+        <li>Attendant (/bus/4): red box <b>“Trip blocked: check every seat”</b> → <b>Found · scan off</b> (or scan Aarav's tag). Everything turns <b>green</b>, trip closes.</li>
+      </ul>
+      <div class="say">“The bus physically cannot close its trip while a child is scanned on but not off. And the bus list is checked against the class register. That's the gap that left a child on a bus for seven hours.”</div>
+      <img class="shot" src="screenshots/12-school-boarded-NOT-in-class-escalated.png" alt="School alert"><img class="shot" src="screenshots/11-attendant-trip-blocked-check-every-seat.png" alt="Attendant blocked">
+    </div>
+  </div>
+
+  <div class="step" data-at="195">
+    <div class="time">3:15<small>30 s</small></div>
+    <div>
+      <b>Scenario 2 · Missed the bus</b> <span class="chip c-red">red</span>
+      <ul class="do">
+        <li>Admin: <b>Reset</b> → <b>Missed the bus · 4×</b> → <b>Start</b>.</li>
+        <li>Bus leaves Sector 15 without Aarav → parent gets a red alarm: tap <b>“Aarav is not going today”</b>.</li>
+        <li>School desk attendance instantly shows <b>“Absent, parent informed”</b>.</li>
+      </ul>
+      <div class="say">“One tap from the parent, and the school knows. No phone calls, no guessing.”</div>
+    </div>
+  </div>
+
+  <div class="step" data-at="225">
+    <div class="time">3:45<small>30 s</small></div>
+    <div>
+      <b>PingME tie-in: the bag tag</b>
+      <ul class="do">
+        <li>Scan a child's QR from <code>/admin/qr</code> with any phone camera → <b>“Found this bag? Alert the parent”</b>. Tap it: the parent is alerted, <b>no phone number shown</b>.</li>
+        <li>Scan a fresh tag (<code>PM-BAG-9001</code>) → <b>Register a new rider</b> → it lands in <b>School → Approvals</b> → Approve → the child appears on the attendant's list.</li>
+      </ul>
+      <div class="say">“Same tag PingME already sells. Reach people, not their personal data.”</div>
+    </div>
+  </div>
+
+  <div class="step" data-at="255">
+    <div class="time">4:15<small>45 s</small></div>
+    <div>
+      <b>Close: privacy + roadmap</b>
+      <div class="say">“Only the bus is ever located: never a child, never a parent. All data here is fake and every number is masked.”</div>
+      <div class="say">“Next: WhatsApp/SMS and native push through PingME's existing alert channel, a masked phone call for red alerts even when the app is closed, role-based login, and Excel import for schools.”</div>
+      <div class="say">“SafeRide: track the child, not just the bus.”</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCENARIOS ================= -->
+<section id="scenarios">
+  <h2>4 · Scenario cheat-sheet</h2>
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <tr><th>Pick on /admin/demo</th><th>What happens</th><th>Where to look</th><th>What to tap</th></tr>
+      <tr><td><b>Normal day</b><br>Morning</td><td>Radius alarm → arriving → boarded <span class="chip c-blue">blue</span> → reached school <span class="chip c-green">green</span></td><td>Parent phone</td><td>“I'm going”</td></tr>
+      <tr><td><b>Normal day</b><br>Afternoon</td><td>Boarded at school → radius/arriving → dropped safely <span class="chip c-green">green</span></td><td>Parent phone</td><td>“I'm going”</td></tr>
+      <tr><td><b>Missed the bus</b><br>(forces Morning)</td><td>Bus leaves the stop without the child → red alarm</td><td>Parent + School attendance</td><td>Parent: “not going today” / “I'll drop him”</td></tr>
+      <tr><td><b>Wrong stop</b><br>(forces Afternoon)</td><td>Child scanned off one stop early → red alert to parent + school</td><td>School alerts</td><td>School: “Child confirmed safe”</td></tr>
+      <tr><td><b>Left on bus</b><br>Morning or Afternoon</td><td>End trip BLOCKED → “Boarded but NOT in class” → escalates every ~3 sim-min</td><td>School + Attendant</td><td>Attendant: “Found · scan off”</td></tr>
+    </table>
+    <p class="see">Target child: the dropdown on /admin/demo. Children claimed by judges are marked <b>· judge</b>: pick one to make <i>their</i> phone ring. Always press <b>Reset</b> between scenarios.</p>
+  </div>
+</section>
+
+<!-- ================= LINES ================= -->
+<section id="lines">
+  <h2>5 · One-liners for questions</h2>
+  <div class="grid">
+    <div class="card"><b>“Is the child tracked?”</b><br>No. Only the bus is located. A child is only “scanned on / off at stop X”. The change-stop pin is used for maths and never stored.</div>
+    <div class="card"><b>“What if the app is closed?”</b><br>Today: in-app alarm + phone notification. Production: PingME's masked call / WhatsApp for red alerts, which work with the app closed.</div>
+    <div class="card"><b>“Is the map real?”</b><br>Yes: OpenStreetMap, real Chandigarh sectors, and the road route from OSRM. ETA = remaining road distance ÷ the bus's measured speed.</div>
+    <div class="card"><b>“How does the bus move without a GPS?”</b><br>It's a simulation for the demo: the bus position is a pure function of time on the real road. In production the attendant's phone or a GPS unit feeds it.</div>
+    <div class="card"><b>“What does the school do?”</b><br>Transport desk: every bus, every child, alerts with escalation, approvals for new riders / stop changes, a simple route editor, a teacher view per class.</div>
+    <div class="card"><b>“Why a bag tag?”</b><br>PingME already sells it: anyone scans with a normal camera, no app. The parent's number is never shown.</div>
+  </div>
+</section>
+
+<!-- ================= TROUBLE ================= -->
+<section id="trouble">
+  <h2>6 · If something breaks</h2>
+  <details><summary>The phone doesn't ring</summary><p>Tap <b>Turn on alarm sound</b> again (needed after every page reload), turn media volume up, turn Do Not Disturb off. Check <b>⚙ Alert settings → Bus is near: Alarm</b>. Red alerts always ring.</p></details>
+  <details><summary>No notification when the phone is locked / in another app</summary><p>Allow notifications for Chrome (Settings → Apps → Chrome → Notifications) and for the site. In the Android app, allow notifications when it asks. If Android paused the app, the alert appears as soon as it is reopened.</p></details>
+  <details><summary>The bus isn't moving</summary><p>The trip may be <b>paused</b> (Admin shows “Resume”) or closed. Press <b>Reset</b>, then <b>Start</b>.</p></details>
+  <details><summary>“The bus is driving. Scan bag tags when it stands at a stop.”</summary><p>Scans only count at a stop. Press <b>Pause</b> on Admin while the bus stands at a stop, scan, then Resume.</p></details>
+  <details><summary>The camera won't open on the attendant phone</summary><p>Allow camera for the site (tap the icon left of the address → Permissions → Camera). Or use the per-child <b>Scan on / Scan off</b> buttons, which do exactly the same.</p></details>
+  <details><summary>Everything looks stuck or messy</summary><p>Admin → <b>Reset</b> (keeps judges' children). Last resort: <b>Full reset (re-seed)</b>: clean world in a few seconds, judges re-join via /join.</p></details>
+  <details><summary>Venue Wi-Fi is slow</summary><p>Use your phone's hotspot for the laptop. The app needs very little data: one small update every 1.5 s.</p></details>
+  <div class="warn">Golden rule: if anything surprises you on stage, say <i>“let me reset the world”</i>, press <b>Reset</b>, and start the scenario again. It takes 2 seconds.</div>
+</section>
+
+</main>
+
+<div class="timer" aria-label="Demo timer">
+  <b id="clock">0:00</b>
+  <button class="pri" id="go">Start</button>
+  <button id="rs">Reset</button>
+</div>
+
+<script>
+// Setup checklist: remembers your ticks in this browser.
+const boxes = [...document.querySelectorAll('.check input')];
+const KEY = 'saferide.demoChecklist';
+const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
+boxes.forEach((b, i) => { b.checked = !!saved[i]; b.addEventListener('change', update); });
+function update() {
+  localStorage.setItem(KEY, JSON.stringify(boxes.map(b => b.checked)));
+  const done = boxes.filter(b => b.checked).length;
+  document.getElementById('done').textContent = done;
+  document.getElementById('total').textContent = boxes.length;
+  document.getElementById('bar').style.width = (100 * done / boxes.length) + '%';
+}
+update();
+
+// Demo timer: highlights the step you should be on.
+const steps = [...document.querySelectorAll('.step')];
+let start = null, timer = null;
+const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+function tick() {
+  const s = Math.floor((Date.now() - start) / 1000);
+  document.getElementById('clock').textContent = fmt(s);
+  let cur = steps[0];
+  steps.forEach(st => { if (s >= +st.dataset.at) cur = st; });
+  steps.forEach(st => st.classList.toggle('now', st === cur));
+  document.getElementById('clock').style.color = s > 300 ? '#A32D2D' : '';
+}
+document.getElementById('go').onclick = () => {
+  if (timer) { clearInterval(timer); timer = null; document.getElementById('go').textContent = 'Resume'; return; }
+  start = start ? Date.now() - (parseClock()) * 1000 : Date.now();
+  timer = setInterval(tick, 250); tick();
+  document.getElementById('go').textContent = 'Pause';
+  document.getElementById('script').scrollIntoView({ behavior: 'smooth' });
+};
+function parseClock() { const [m, s] = document.getElementById('clock').textContent.split(':').map(Number); return m * 60 + s; }
+document.getElementById('rs').onclick = () => {
+  clearInterval(timer); timer = null; start = null;
+  document.getElementById('clock').textContent = '0:00'; document.getElementById('clock').style.color = '';
+  document.getElementById('go').textContent = 'Start';
+  steps.forEach(st => st.classList.remove('now'));
+};
+</script>
+</body>
+</html>
