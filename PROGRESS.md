@@ -24,7 +24,7 @@ Live: **https://pingme-saferide.vercel.app** (Vercel production + Neon Postgres 
 - ✅ Live production URL works with no login
 - ✅ Logo, favicon, PWA manifest + 192/512 icons = "Tag bus" (all served 200)
 - ✅ Live ETA (km + min) always shown; radius chooser shows minutes; ring = chosen radius; bus on real OSM roads (screenshots 04, 05, 09)
-- 📱 Background-tab Notification (code done: `components/parent/alarm.ts`; needs a phone with the tab in background)
+- 📱 Background-tab Notification: blocked on the test phone because Android notifications for Chrome are switched off by the owner → re-test after enabling
 - ✅ 00:10 (14 Nov) ALARM MODE on a real Android phone (Realme RMX3750, Android 15, Chrome over USB): /join → Parent gave Diya; full-screen alarm appeared for “Bus is near” + “Arriving now”, ringtone confirmed playing from Chrome (Android audio log), “I'm going” logged on the school dashboard. Vibration: page calls vibrate() OK but Do Not Disturb on the phone suppresses it → re-test with DND off
 - ✅ Normal morning: radius → arriving → boarded → reached school
 - ✅ Normal afternoon: boarded → radius/arriving → dropped safely
