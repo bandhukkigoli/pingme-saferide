@@ -44,3 +44,6 @@ Live: **https://pingme-saferide.vercel.app** (Vercel production + Neon Postgres 
 - ✅ Hindi/English toggle switches alert texts (screenshot 09)
 - ✅ No real personal data, no person location (grep for geolocation APIs: no matches; EXPLAIN.md)
 - ✅ README, EXPLAIN.md, HURDLES.md, docs/screenshots, docs/CP3_hurdles.md
+
+## Phase 3 stretch
+- ✅ 01:37 (14 Nov) `dist/SafeRide.apk` built (3.97 MB, Capacitor 6): live site + Tag-bus icon + native "SafeRide alarms" channel with custom ringtone. Install + on-phone test pending (phone disconnected)

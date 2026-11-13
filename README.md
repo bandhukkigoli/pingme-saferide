@@ -73,6 +73,14 @@ BASE=https://pingme-saferide.vercel.app npm run test:engine
 
 For the full file-by-file tour, read [EXPLAIN.md](EXPLAIN.md).
 
+## Android app (APK)
+
+`dist/SafeRide.apk` is a small Android app (made with Capacitor, in `mobile/`) that opens the live site full-screen with the Tag-bus icon and adds **native alarm notifications**: a high-priority "SafeRide alarms" channel with its own two-tone ringtone (`mobile/android/app/src/main/res/raw/saferide_alarm.wav`). The website code switches to these native notifications only inside the app (`components/parent/alarm.ts`).
+
+- Install on a phone: copy the APK over and open it (allow "install unknown apps"), or `adb install -r dist/SafeRide.apk`.
+- Rebuild: `cd mobile && npx cap sync android && cd android && gradlew.bat assembleDebug` (output: `mobile/android/app/build/outputs/apk/debug/app-debug.apk`). `node mobile/make-assets.mjs` regenerates icons + ringtone.
+- Honest limit: when Android fully pauses the app in the background, alerts arrive when it is reopened. Always-on alerts with the app closed need push notifications (roadmap: PingME's existing alert channel).
+
 ## Privacy
 
 - **Only the bus is located.** No person's location is ever asked for, saved or shown.
