@@ -24,7 +24,8 @@ export default function ParentPage() {
 
   const [lang, setLang] = useState<Lang>("en");
   const [nearMode, setNearMode] = useState<"alarm" | "notification">("alarm");
-  const [soundReady, setSoundReady] = useState(true); // true = hide the banner (until we read localStorage)
+  // Sound must be unlocked by a tap on EVERY page load (browser rule), so the banner shows until then.
+  const [soundReady, setSoundReady] = useState(false);
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [routesVersion, setRoutesVersion] = useState<number | null>(null);
   const [pickedRadius, setPickedRadius] = useState<number | null>(null); // instant feedback after a tap
@@ -36,12 +37,14 @@ export default function ParentPage() {
   useEffect(() => {
     if (localStorage.getItem("saferide.lang") === "hi") setLang("hi");
     if (localStorage.getItem("saferide.nearMode") === "notification") setNearMode("notification");
-    setSoundReady(localStorage.getItem("saferide.soundReady") === "1");
     localStorage.setItem("saferide.childId", String(childId));
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
     // Browsers need a tap before sound: wake the audio on the very first touch anywhere.
-    const wake = () => unlockAudio();
+    const wake = () => {
+      unlockAudio();
+      setSoundReady(true);
+    };
     document.addEventListener("pointerdown", wake, { once: true });
     return () => document.removeEventListener("pointerdown", wake);
   }, [childId]);
