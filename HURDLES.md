@@ -1,0 +1,9 @@
+# HURDLES (problem → fix), newest last
+
+1. **Stop order zigzagged across the sector grid.** The SPEC order 35→22→16→15→11→14→PEC drives 16.1 km on real roads because Sector 11 sits next to PEC while 14 is to the west. **Fix:** compared 4 orders on OSRM; 35→22→16→15→**14→11**→PEC is the shortest (13.8 km) with no back-tracking. Side effect: in the Wrong-stop scenario Aarav now gets off at Sector 14 (still "one stop early").
+2. **"3 sim-minutes per leg" made the bus drive 80 km/h on the long 4 km leg**, which made ETAs nonsense. **Fix:** dwell 1 sim-minute per stop (as in the SPEC) but driving time = leg length ÷ 22 km/h. ETA = remaining road distance ÷ the bus's measured average speed (fallback 18 km/h).
+3. **No background workers on Vercel.** **Fix:** the bus position is a pure function of time; every poll "catches up" the due steps. A compare-and-swap on `trips.last_processed_step` plus unique keys on alerts/events stops two phones from creating the same alert twice.
+4. **"Arriving now" alert could be skipped at 4× speed** (the bus covers 150 m between two polls). **Fix:** the stop-arrival step also fires it, de-duplicated with the same key.
+5. **Bug: parent alerts never showed.** The events query joined `trips.kind` over `events.kind`, so every event looked like kind "morning". **Fix:** renamed the joined column to `trip_kind`. Caught by the automated scenario test.
+6. **After a full re-seed, event ids restart at 1**, so phones that remembered "seen up to id 500" would hide every new alert. **Fix:** the takeover resets its "seen" mark when the newest event id is lower than the remembered one.
+7. **Cloud logins need a human.** The Vercel connection must be approved once in the browser; a no-login "instant Neon database" tool was blocked by the safety rules (running code from the internet). **Fix:** local development uses PGlite (real Postgres inside Node, same SQL); production uses Neon via the Vercel Marketplace after one click.

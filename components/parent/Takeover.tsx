@@ -71,6 +71,9 @@ export default function Takeover({ childId, events, lang, nearMode }: Props) {
       const stored = localStorage.getItem(key);
       maxSeen.current = stored === null ? -1 : Number(stored);
     }
+    // After a full demo re-seed the database numbers events from 1 again: forget the old "seen" mark.
+    const maxId = events.reduce((m, e) => Math.max(m, e.id), -1);
+    if (events.length && maxId < (maxSeen.current as number)) maxSeen.current = maxId;
     const seenBefore = maxSeen.current as number;
     const stored = localStorage.getItem(key) !== null;
 
