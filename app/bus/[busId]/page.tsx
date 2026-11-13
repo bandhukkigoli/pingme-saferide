@@ -138,6 +138,22 @@ export default function AttendantPage() {
             {t.auto}
           </label>
 
+          {/* Blocked: end trip was pressed but children are still on board. Shown at the TOP so it can't be missed. */}
+          {blocked && (
+            <div className="check" style={{ marginTop: 0, marginBottom: 12 }}>
+              <div style={{ fontWeight: 600, color: "#791F1F" }}>{t.blocked}</div>
+              <div style={{ fontSize: 12, color: "#791F1F", margin: "4px 0 8px" }}>{t.blockedSub}</div>
+              {onboardRiders.map((r) => (
+                <div key={r.childId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6, gap: 8 }}>
+                  <span className="blink" style={{ fontWeight: 600 }}>{r.name}</span>
+                  <button className="danger" style={{ minHeight: 48 }} onClick={() => run(() => post("/api/trip/found", { busId, childId: r.childId }))}>
+                    {t.found}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* The one primary button on this screen */}
           <button className="pri" style={{ width: "100%", minHeight: 56, fontSize: 16 }} disabled={!canScan} onClick={() => setCamera((c) => !c)}>
             {t.scan}
@@ -172,21 +188,8 @@ export default function AttendantPage() {
             })}
           </div>
 
-          {/* Blocked: end trip was pressed but children are still on board */}
-          {blocked ? (
-            <div className="check">
-              <div style={{ fontWeight: 600, color: "#791F1F" }}>{t.blocked}</div>
-              <div style={{ fontSize: 12, color: "#791F1F", margin: "4px 0 8px" }}>{t.blockedSub}</div>
-              {onboardRiders.map((r) => (
-                <div key={r.childId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6, gap: 8 }}>
-                  <span className="blink" style={{ fontWeight: 600 }}>{r.name}</span>
-                  <button className="danger" style={{ minHeight: 48 }} onClick={() => run(() => post("/api/trip/found", { busId, childId: r.childId }))}>
-                    {t.found}
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
+          {/* End trip (the red "check every seat" box replaces it at the top when blocked) */}
+          {!blocked && (
             <button
               style={{ width: "100%", marginTop: 12, minHeight: 48 }}
               disabled={!bus.canEndTrip}

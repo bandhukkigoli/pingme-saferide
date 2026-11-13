@@ -6,6 +6,13 @@ let ctx: AudioContext | null = null; // one shared AudioContext for the whole pa
 let ringTimer: ReturnType<typeof setInterval> | null = null;
 let vibTimer: ReturnType<typeof setInterval> | null = null;
 
+// Vibrate, but only after the parent has tapped the page once (browsers block it before that).
+function vibrate(pattern: number | number[]) {
+  const ua = (navigator as any).userActivation;
+  if (ua && !ua.hasBeenActive) return;
+  navigator.vibrate?.(pattern);
+}
+
 // Create (or wake up) the shared AudioContext. Call this from a tap.
 export function unlockAudio() {
   try {
@@ -45,7 +52,7 @@ const BEEPS: Record<string, [number, number][]> = {
 // Used for "info" takeovers: a short beep plus a short buzz.
 export function beep(color: string) {
   try {
-    navigator.vibrate?.(color === "red" ? [200, 100, 200, 100, 200] : [120, 80, 120]);
+    vibrate(color === "red" ? [200, 100, 200, 100, 200] : [120, 80, 120]);
   } catch {}
   if (!ctx) return;
   if (ctx.state === "suspended") ctx.resume();
@@ -70,7 +77,7 @@ function ringOnce() {
 
 function buzzOnce() {
   try {
-    navigator.vibrate?.([600, 300, 600, 300]);
+    vibrate([600, 300, 600, 300]);
   } catch {}
 }
 
@@ -92,7 +99,7 @@ export function stopRing() {
   ringTimer = null;
   vibTimer = null;
   try {
-    navigator.vibrate?.(0); // cancel any buzz in progress
+    vibrate(0); // cancel any buzz in progress
   } catch {}
 }
 

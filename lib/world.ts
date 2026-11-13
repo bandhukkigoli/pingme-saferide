@@ -195,7 +195,9 @@ async function parentView(c: any, child: ChildLite, views: BusView[], tripIds: n
       const stopsM = br.stops.map((s) => ({ id: s.id, bus_id: s.busId, name: s.name, lat: s.lat, lng: s.lng, seq: s.seq, is_school: s.isSchool }));
       const plan = makePlan(c.bus_id, view.busName, br.route, stopsM, kind);
       // Morning: the bus comes to the home stop. Afternoon: the bus brings the child to the home stop.
-      const idx = plan.stops.findIndex((s) => s.id === c.stop_id);
+      // Once a child is on the morning bus, count down to school instead of to the home stop.
+      const toSchool = kind === "morning" && rider?.state === "onboard";
+      const idx = toSchool ? plan.stops.length - 1 : plan.stops.findIndex((s) => s.id === c.stop_id);
       const remaining = idx >= 0 ? plan.dist[idx] - view.live.distAlong : -1;
       const done = view.trip?.status === "closed" || view.trip?.status === "blocked";
       if (remaining >= 0 && !done) eta = { distM: Math.round(remaining), minutes: Math.max(remaining < 50 ? 0 : 1, Math.round(remaining / speed)) };

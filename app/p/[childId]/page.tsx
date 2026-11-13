@@ -112,7 +112,7 @@ export default function ParentPage() {
 
   // The always-visible ETA line.
   let etaLine: string;
-  if (me.eta) etaLine = t(lang, "eta_line", { bus: busText, dist: fmtDist(me.eta.distM), min: me.eta.minutes });
+  if (me.eta) etaLine = t(lang, trip?.kind === "morning" && me.rider?.state === "onboard" ? "eta_school" : "eta_line", { bus: busText, dist: fmtDist(me.eta.distM), min: me.eta.minutes });
   else if (!trip || trip.status === "idle" || trip.status === "closed") etaLine = t(lang, "eta_none", { bus: busText });
   else etaLine = t(lang, "eta_passed", { bus: busText });
 
