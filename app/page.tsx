@@ -28,6 +28,11 @@ export default function Landing() {
         <button className="pri" style={{ width: "100%", minHeight: 56, fontSize: 17, marginTop: 14 }}>Try it as a parent</button>
       </Link>
 
+      {/* The Android app (made with Capacitor, see mobile/). A plain download link: Android asks before installing. */}
+      <a href="/SafeRide.apk" download style={{ display: "block", textAlign: "center", marginTop: 10, fontSize: 14, color: "var(--teal)", fontWeight: 600 }}>
+        📱 Get the Android app (4 MB)
+      </a>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 14 }}>
         {ROLES.map((r) => (
           <Link key={r.href} href={r.href}>
