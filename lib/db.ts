@@ -28,7 +28,9 @@ async function makeRunner(): Promise<Runner> {
     };
   }
   const { PGlite } = await import("@electric-sql/pglite");
-  const db = new PGlite(path.join(process.cwd(), ".pglite"));
+  // On Vercel without a database configured, only /tmp is writable (temporary fallback).
+  const dir = process.env.VERCEL ? "/tmp/pglite" : path.join(process.cwd(), ".pglite");
+  const db = new PGlite(dir);
   await db.waitReady;
   return {
     query: async (text, params = []) => (await db.query<Row>(text, params as any[])).rows,
