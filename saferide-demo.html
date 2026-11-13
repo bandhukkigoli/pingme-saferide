@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PingME SafeRide · Demo</title>
+<style>
+:root{--teal:#0F6E56;--teal2:#1D9E75;--tealL:#E1F5EE;--tealM:#9FE1CB;--ink:#1d1d1b;--mut:#6b6a65;--line:#e4e2db;--bg:#f4f3ee;--card:#fff;
+--blue:#185FA5;--blueL:#E6F1FB;--amber:#BA7517;--amberL:#FAEEDA;--green:#3B6D11;--greenL:#EAF3DE;--red:#A32D2D;--redL:#FCEBEB}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:10px 18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;font-weight:600;font-size:17px}
+.brand small{display:block;font-weight:400;font-size:12px;color:var(--mut)}
+select,button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:8px 12px;cursor:pointer}
+button:hover{border-color:#c9c6bb}
+button.pri{background:var(--teal);border-color:var(--teal);color:#fff}
+button.danger{background:var(--red);border-color:var(--red);color:#fff}
+button:disabled{opacity:.4;cursor:not-allowed}
+main{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;padding:18px;max-width:1360px;margin:0 auto}
+.lbl{font-size:12px;font-weight:600;color:var(--mut);margin:0 0 8px 6px;letter-spacing:.03em}
+.phone{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:16px;position:relative;overflow:hidden;min-height:680px;max-width:400px;margin:0 auto}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.row{display:flex;align-items:center;gap:10px}
+.mut{color:var(--mut)}
+.chip{font-size:11px;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.c-teal{background:var(--tealL);color:#085041}.c-blue{background:var(--blueL);color:#0C447C}.c-amber{background:var(--amberL);color:#633806}
+.c-green{background:var(--greenL);color:#27500A}.c-red{background:var(--redL);color:#791F1F}.c-gray{background:#F1EFE8;color:#444441}
+.pass{border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pass-top{background:var(--teal);color:var(--tealL);padding:12px 14px}
+.pass-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px}
+.pass-grid .k{font-size:11px;color:var(--mut)}.pass-grid .v{font-size:15px;font-weight:600}
+.pass-foot{border-top:1.5px dashed #d3d1c7;padding:8px 14px;font-size:12px;color:var(--mut)}
+.map{background:#f1efe8;border-radius:14px;margin-top:12px;overflow:hidden}
+.tl{margin-top:12px;display:flex;flex-direction:column;gap:8px;font-size:13px;max-height:170px;overflow:auto}
+.tl div{display:flex;gap:8px;align-items:flex-start}
+.tl .t{color:var(--mut);margin-left:auto;font-variant-numeric:tabular-nums}
+.kid{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.av{width:34px;height:34px;border-radius:50%;background:var(--tealL);color:#085041;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex:none}
+.kid button{padding:7px 10px;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{background:var(--bg);border-radius:12px;padding:10px 12px}.kpi .k{font-size:12px;color:var(--mut)}.kpi .v{font-size:24px;font-weight:600}
+.alert{border:1px solid #F7C1C1;background:var(--redL);border-radius:12px;padding:10px 12px;margin-top:8px}
+.alert.ok{border-color:#C0DD97;background:var(--greenL)}
+.feed{font-size:12px;max-height:150px;overflow:auto;display:flex;flex-direction:column;gap:5px;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 4px;border-bottom:1px solid var(--line)}
+.to{position:absolute;inset:0;z-index:10;display:none;flex-direction:column;padding:28px 22px;color:#fff;animation:pop .25s ease}
+.to.show{display:flex}
+.to .k{font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:.08em}
+.to .h{font-size:34px;font-weight:700;line-height:1.1;margin-top:40px}
+.to .s{font-size:16px;opacity:.92;margin-top:12px;line-height:1.5}
+.to .btns{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.to button{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45);color:#fff;padding:13px;font-size:15px;border-radius:12px}
+.to button:first-child{background:#fff;color:var(--ink);border-color:#fff}
+@keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.blink{animation:bl 1s infinite}@keyframes bl{50%{opacity:.35}}
+.check{border:1px solid #F7C1C1;background:var(--redL);border-radius:14px;padding:12px;margin-top:12px}
+footer{text-align:center;font-size:12px;color:var(--mut);padding:0 0 24px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 96 96" aria-label="SafeRide logo"><rect width="96" height="96" rx="22" fill="#0F6E56"/><path d="M30 22h36a8 8 0 0 1 8 8v40a8 8 0 0 1-8 8H30a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8z" fill="#E1F5EE"/><circle cx="48" cy="30" r="4" fill="#0F6E56"/><rect x="33" y="42" width="30" height="24" rx="5" fill="#0F6E56"/><rect x="37" y="46" width="22" height="9" rx="2" fill="#9FE1CB"/><circle cx="39" cy="61" r="2.5" fill="#E1F5EE"/><circle cx="57" cy="61" r="2.5" fill="#E1F5EE"/></svg>
+    <div>PingME SafeRide<small>Track the child, not just the bus</small></div>
+  </div>
+  <select id="scenario" onchange="onScenario()" aria-label="Scenario">
+    <option value="normal">Normal day</option>
+    <option value="missed">Missed the bus (morning)</option>
+    <option value="wrong">Wrong stop (afternoon)</option>
+    <option value="left">Left on bus (Noida case)</option>
+  </select>
+  <select id="trip" onchange="resetSim()" aria-label="Trip">
+    <option value="morning">Morning: home → school</option>
+    <option value="afternoon">Afternoon: school → home</option>
+  </select>
+  <select id="speed" onchange="setSpeed()" aria-label="Speed"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option></select>
+  <button class="pri" id="playBtn" onclick="togglePlay()">▶ Start trip</button>
+  <button onclick="resetSim()">Reset</button>
+</header>
+
+<main>
+  <section>
+    <p class="lbl">PARENT · Rajesh (Aarav's dad)</p>
+    <div class="phone" id="parentPhone">
+      <div id="parent"></div>
+      <div class="to" id="to"><div class="k" id="toK"></div><div class="h" id="toH"></div><div class="s" id="toS"></div><div class="btns" id="toB"></div></div>
+    </div>
+  </section>
+  <section>
+    <p class="lbl">BUS ATTENDANT · Ravi, Bus 4</p>
+    <div class="phone" id="attendant"></div>
+  </section>
+  <section>
+    <p class="lbl">SCHOOL · Transport desk</p>
+    <div class="panel" id="school"></div>
+  </section>
+</main>
+<footer>Demo with simulated data. No real people, no real locations: only the bus is located, never a person.</footer>
+
+<script>
+const STOPS=[
+ {n:'Sector 35',x:34,y:178},{n:'Sector 22',x:86,y:156},{n:'Sector 16',x:132,y:122},
+ {n:'Sector 15',x:176,y:142},{n:'Sector 11',x:218,y:100},{n:'Sector 14',x:258,y:74},
+ {n:'PEC School',x:300,y:38,school:true}];
+const KIDS=[
+ {id:'aarav',name:'Aarav Sharma',cls:'3-B',home:'Sector 15',tag:'PM-BAG-2207'},
+ {id:'diya',name:'Diya Verma',cls:'2-A',home:'Sector 22',tag:'PM-BAG-1184'},
+ {id:'kabir',name:'Kabir Singh',cls:'5-C',home:'Sector 16',tag:'PM-BAG-3391'},
+ {id:'meera',name:'Meera Gill',cls:'4-A',home:'Sector 11',tag:'PM-BAG-2760'},
+ {id:'rohan',name:'Rohan Bansal',cls:'3-B',home:'Sector 35',tag:'PM-BAG-1902'},
+ {id:'saanvi',name:'Saanvi Arora',cls:'1-C',home:'Sector 14',tag:'PM-BAG-4415'}];
+const SEG=3, LV=['Attendant','Transport in-charge','Principal'];
+const COLORS={blue:'#185FA5',amber:'#BA7517',green:'#3B6D11',red:'#A32D2D'};
+let S, timer=null, toTimer=null, actx=null, aid=0;
+
+const $=id=>document.getElementById(id);
+const fmt=m=>{let h=Math.floor(m/60),mm=m%60,ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+String(mm).padStart(2,'0')+' '+ap};
+const kid=id=>KIDS.find(k=>k.id===id);
+const ini=n=>n.split(' ').map(w=>w[0]).join('');
+const aIdx=()=>S.route.findIndex(s=>s.n===kid('aarav').home);
+
+function resetSim(){
+  stopTimer();
+  const trip=$('trip').value, sc=$('scenario').value;
+  const route=trip==='morning'?STOPS.slice():STOPS.slice().reverse();
+  S={trip,sc,route,clock:trip==='morning'?7*60+30:13*60+35,seg:0,prog:0,atStop:true,arrived:false,
+     kids:{},alerts:[],feed:[],tl:[],ended:false,blocked:false,notified:{},lead:S?S.lead:2,auto:S?S.auto:true,started:false};
+  KIDS.forEach(k=>S.kids[k.id]={st:trip==='morning'?'waiting':'atschool',att:trip==='morning'?'—':'In class'});
+  hideTO(); $('playBtn').textContent='▶ Start trip'; render();
+}
+function onScenario(){
+  const sc=$('scenario').value;
+  if(sc==='missed')$('trip').value='morning';
+  if(sc==='wrong')$('trip').value='afternoon';
+  resetSim();
+}
+function setSpeed(){if(timer){stopTimer();startTimer();}}
+function startTimer(){timer=setInterval(tick,1600/+$('speed').value)}
+function stopTimer(){clearInterval(timer);timer=null}
+function togglePlay(){
+  if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+  if(timer){stopTimer();$('playBtn').textContent='▶ Resume';}
+  else{ if(!S.started){S.started=true;feed('info',`Trip started: Bus 4, ${S.trip==='morning'?'home → school':'school → home'}`);}
+        startTimer();$('playBtn').textContent='❚❚ Pause';}
+  render();
+}
+
+function tick(){
+  S.clock++;
+  if(!S.ended&&!S.blocked){
+    const last=S.seg===S.route.length-1;
+    if(S.atStop){
+      if(!S.arrived){arrive(S.seg);S.arrived=true;}
+      else if(last){if(S.auto)endTrip();}
+      else{depart(S.seg);S.atStop=false;S.prog=0;}
+    }else{
+      S.prog++;
+      if(S.prog>=SEG){S.seg++;S.atStop=true;S.arrived=false;S.prog=0;}
+    }
+  }
+  escalate();
+  if(S.ended&&!openAlerts().length){stopTimer();$('playBtn').textContent='✓ Trip closed';}
+  render();
+}
+
+function arrive(i){
+  const stop=S.route[i], last=i===S.route.length-1;
+  leadCheck(i);
+  if(!S.auto)return;
+  if(S.trip==='morning'){
+    if(last) KIDS.forEach(k=>{if(S.kids[k.id].st==='onboard'&&!(k.id==='aarav'&&S.sc==='left'))scan(k.id,'drop',i,true)});
+    else KIDS.filter(k=>k.home===stop.n).forEach(k=>{if(!(k.id==='aarav'&&S.sc==='missed'))scan(k.id,'board',i,true)});
+  }else{
+    if(i===0) KIDS.forEach(k=>scan(k.id,'board',i,true));
+    else KIDS.forEach(k=>{
+      if(S.kids[k.id].st!=='onboard')return;
+      if(k.id==='aarav'){ if(S.sc==='left')return; if(S.sc==='wrong'){if(stop.n==='Sector 11')scan('aarav','drop',i,true);return;} }
+      if(k.home===stop.n)scan(k.id,'drop',i,true);
+    });
+  }
+}
+function depart(i){
+  const k=kid('aarav');
+  if(S.trip==='morning'&&S.route[i].n===k.home&&S.kids.aarav.st==='waiting'){
+    const t=fmt(S.clock);
+    S.kids.aarav.st='missed';S.kids.aarav.att='Missed bus';
+    addAlert('missed','aarav','Aarav missed Bus 4',`Not scanned at ${k.home}, bus left ${t}. Parent asked to confirm.`);
+    tl('Bus left Sector 15 without Aarav',t,'bad');
+    showTO('red','Missed the bus',`Bus 4 left ${k.home} without Aarav`,`No scan at ${t}. Tell us what's happening so the school knows he's safe.`,
+      [["He's not going today",()=>parentResp('Absent, parent informed')],["I'll drop him myself",()=>parentResp('Parent dropping')]]);
+  }
+}
+function parentResp(txt){
+  S.kids.aarav.att=txt;resolveKid('aarav','missed');
+  feed('ok',`Parent confirmed for Aarav: ${txt}`);tl(`You told school: ${txt}`,fmt(S.clock));hideTO();render();
+}
+function leadCheck(i){
+  const ai=aIdx(), rem=ai-i, a=S.kids.aarav;
+  const relevant=S.trip==='morning'?a.st==='waiting':a.st==='onboard';
+  if(!relevant||rem<=0||rem>S.lead||S.notified[rem])return;
+  S.notified[rem]=1;
+  const eta=rem*(SEG+1), stop=kid('aarav').home;
+  if(rem===1){
+    tl(`Alert: bus 1 stop away, head out`,fmt(S.clock));
+    showTO('amber','Bus approaching','Head to the stop now',
+      S.trip==='morning'?`Bus 4 reaches ${stop} in about ${eta} min. Send Aarav out.`:`Aarav arrives at ${stop} in about ${eta} min.`,[['On my way']],6000);
+  }else{
+    tl(`Alert: bus ${rem} stops away`,fmt(S.clock));
+    showTO('amber','Heads-up',`Bus 4 is ${rem} stops away`,
+      S.trip==='morning'?`About ${eta} min to ${stop}. Get Aarav ready.`:`Aarav is on board, about ${eta} min to ${stop}.`,[['Got it']],5000);
+  }
+}
+
+function scan(id,type,i,auto){
+  const k=kid(id), kd=S.kids[id], stop=S.route[i], t=fmt(S.clock);
+  if(type==='board'){
+    if(kd.st==='onboard'||kd.st==='dropped')return;
+    kd.st='onboard';kd.board=t;
+    if(S.trip==='morning')kd.att='On bus';
+    feed('scan',`${k.name} scanned ON at ${stop.n}${auto?'':' (manual)'}`);
+    if(id==='aarav'){tl(`Boarded Bus 4 at ${stop.n}`,t);showTO('blue','Scanned on','Aarav boarded Bus 4',`${stop.n} · ${t} · attendant Ravi`,[['OK']],3500);}
+  }else{
+    if(kd.st!=='onboard')return;
+    kd.st='dropped';kd.drop=t;kd.dropStop=stop.n;
+    const ok=stop.school||stop.n===k.home;
+    if(stop.school)kd.att='In class';else kd.att=ok?'Home stop ✓':'Wrong stop';
+    feed(ok?'scan':'alert',`${k.name} scanned OFF at ${stop.n}${ok?'':' (not their stop)'}`);
+    if(!ok)addAlert('wrong',id,`${k.name} got off at the wrong stop`,`Off at ${stop.n}, home stop is ${k.home}`);
+    if(id==='aarav'){
+      if(stop.school){tl('Reached school',t);showTO('green','Safe','Aarav reached school',`Scanned off at PEC School · ${t}`,[['Great']],6000);}
+      else if(ok){tl(`Dropped at ${stop.n}`,t);showTO('green','Safe','Dropped safely',`Aarav got off at ${stop.n} · ${t}`,[['Great']]);}
+      else{tl(`Got off at ${stop.n} (wrong stop)`,t,'bad');
+        showTO('red','Alert','Wrong stop',`Aarav got off at ${stop.n}, not ${k.home} · ${t}. The attendant and school are alerted.`,
+          [['Call attendant (number hidden)',()=>{feed('info','Masked call: Rajesh → attendant Ravi');hideTO();render();}],['OK']]);}
+    }
+  }
+  render();
+}
+
+function endTrip(){
+  if(S.ended||S.blocked)return;
+  const left=KIDS.filter(k=>S.kids[k.id].st==='onboard');
+  if(!left.length){S.ended=true;feed('ok','Trip closed: every child accounted for');render();return;}
+  S.blocked=true;
+  left.forEach(k=>{
+    const kd=S.kids[k.id];
+    if(S.trip==='morning'){kd.att='Boarded, NOT in class';
+      addAlert('left',k.id,`${k.name} boarded but is not in class ${k.cls}`,`Scanned on ${kd.board}, never scanned off. Bus can't close trip.`);}
+    else addAlert('left',k.id,`${k.name} still on Bus 4`,`Scanned on ${kd.board}, never scanned off. Bus can't close trip.`);
+    if(k.id==='aarav'){tl('Not scanned off: school alerted',fmt(S.clock),'bad');
+      showTO('red','Alert','Aarav was not scanned off',`Bus 4 can't close its trip until he's found. The school and transport desk are on it.`,[['Call school (number hidden)',()=>{feed('info','Masked call: Rajesh → transport desk');hideTO();render();}],['OK']]);}
+  });
+  feed('alert','Trip BLOCKED: children still on board');
+  render();
+}
+function found(id){
+  const k=kid(id),kd=S.kids[id],t=fmt(S.clock),last=S.route[S.route.length-1];
+  kd.st='dropped';kd.drop=t;kd.dropStop=last.n;kd.att=S.trip==='morning'?'In class':'Handed to school';
+  resolveKid(id,'left');feed('ok',`${k.name} found on bus by attendant, checked off`);
+  if(id==='aarav'){tl('Found on bus, now safe',t);showTO('green','Safe','Aarav is safe',`Found on Bus 4 by the attendant at ${t}. ${S.trip==='morning'?'He is now in class.':'The school will hand him over.'}`,[['Thank you']]);}
+  if(!KIDS.some(k=>S.kids[k.id].st==='onboard')){S.blocked=false;S.ended=true;feed('ok','Trip closed: every child accounted for');}
+  if(!timer&&S.started)startTimer();
+  render();
+}
+
+function addAlert(type,kidId,title,detail){S.alerts.unshift({id:++aid,type,kidId,title,detail,at:S.clock,lvl:0,done:false});feed('alert',title)}
+function resolveKid(kidId,type){S.alerts.forEach(a=>{if(a.kidId===kidId&&a.type===type)a.done=true})}
+function resolveAlert(id){const a=S.alerts.find(x=>x.id===id);if(a){a.done=true;feed('ok',`Resolved: ${a.title}`);}render()}
+function openAlerts(){return S.alerts.filter(a=>!a.done)}
+function escalate(){openAlerts().forEach(a=>{const l=Math.min(2,Math.floor((S.clock-a.at)/3));if(l>a.lvl){a.lvl=l;feed('alert',`Escalated to ${LV[l]}: ${a.title}`)}})}
+function feed(kind,txt){S.feed.unshift({kind,txt,t:fmt(S.clock)});S.feed=S.feed.slice(0,40)}
+function tl(txt,t,cls){S.tl.push({txt,t,cls})}
+
+function showTO(color,k,h,s,btns,auto){
+  const el=$('to');el.style.background=COLORS[color];
+  $('toK').textContent=k;$('toH').textContent=h;$('toS').textContent=s;
+  const b=$('toB');b.innerHTML='';
+  (btns||[['OK']]).forEach(([label,fn])=>{const x=document.createElement('button');x.textContent=label;x.onclick=fn||hideTO;b.appendChild(x)});
+  el.classList.add('show');clearTimeout(toTimer);if(auto)toTimer=setTimeout(hideTO,auto);
+  buzz(color);
+}
+function hideTO(){$('to').classList.remove('show');clearTimeout(toTimer)}
+function buzz(color){
+  const pat={blue:[[660,.12]],amber:[[740,.12],[740,.12]],green:[[523,.12],[784,.2]],red:[[880,.15],[880,.15],[880,.15]]}[color];
+  try{navigator.vibrate&&navigator.vibrate(color==='red'?[200,100,200,100,200]:[120,80,120])}catch(e){}
+  if(!actx)return;let t=actx.currentTime;
+  pat.forEach(([f,d])=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.connect(g);g.connect(actx.destination);
+    g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d);t+=d+.06});
+}
+
+function busPos(){
+  const a=S.route[S.seg];if(S.atStop||S.seg>=S.route.length-1)return a;
+  const b=S.route[S.seg+1],f=S.prog/SEG;return{x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f};
+}
+function mapSVG(h){
+  const p=busPos(), home=STOPS.find(s=>s.n===kid('aarav').home);
+  const path=STOPS.map((s,i)=>(i?'L':'M')+s.x+' '+s.y).join(' ');
+  return `<svg viewBox="0 0 330 205" width="100%" height="${h}" role="img" aria-label="Bus route map">
+  <circle cx="${home.x}" cy="${home.y}" r="34" fill="#1D9E75" opacity=".1" stroke="#1D9E75" stroke-dasharray="4 4"/>
+  <path d="${path}" fill="none" stroke="#9FE1CB" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  ${STOPS.map(s=>`<circle cx="${s.x}" cy="${s.y}" r="${s.school?7:4.5}" fill="${s.n===home.n?'#0F6E56':s.school?'#085041':'#888780'}"/>
+  <text x="${s.x}" y="${s.y+(s.y>150?-11:17)}" text-anchor="middle" font-size="9.5" fill="#5F5E5A">${s.school?'School':s.n.replace('Sector ','S-')}</text>`).join('')}
+  <g transform="translate(${p.x},${p.y})"><circle r="12" fill="#0F6E56" stroke="#fff" stroke-width="2.5"/><text y="4" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">4</text></g>
+  </svg>`;
+}
+
+function parentStatus(){
+  const a=S.kids.aarav, rem=aIdx()-S.seg-(S.atStop?0:1);
+  if(a.st==='missed')return['Missed bus','c-red','—'];
+  if(S.trip==='morning'){
+    if(a.st==='waiting')return['Waiting at stop','c-gray',rem>=0?`Bus in ~${Math.max(1,rem*(SEG+1))} min`:'—'];
+    if(a.st==='onboard')return[S.blocked?'Not scanned off':'On board','c-blue',S.blocked?'Being found':'To school'];
+    return['At school','c-green','Arrived'];
+  }
+  if(a.st==='atschool')return['In school','c-gray','Bus at 1:35'];
+  if(a.st==='onboard')return[S.blocked?'Not scanned off':'On board','c-blue',rem>0?`~${rem*(SEG+1)} min`:'—'];
+  return[a.dropStop===kid('aarav').home?'Home stop ✓':'Wrong stop',a.dropStop===kid('aarav').home?'c-green':'c-red','Dropped'];
+}
+
+function render(){
+  const k=kid('aarav'), [st,cls,eta]=parentStatus(), stop=S.route[S.seg];
+  const lastScan=S.kids.aarav.drop?`scanned off ${S.kids.aarav.drop}`:S.kids.aarav.board?`scanned on ${S.kids.aarav.board}`:'no scans yet today';
+  $('parent').innerHTML=`
+  <div class="row" style="justify-content:space-between;font-size:12px" ><span class="mut">${fmt(S.clock)} · ${S.trip==='morning'?'Morning trip':'Afternoon trip'}</span><span class="chip c-teal">हिं / EN</span></div>
+  <div class="pass" style="margin-top:10px">
+    <div class="pass-top row"><div class="av" style="background:#E1F5EE">${ini(k.name)}</div>
+      <div><div style="font-weight:600">${k.name}</div><div style="font-size:12px;color:#9FE1CB">Class ${k.cls} · Tag ${k.tag}</div></div></div>
+    <div class="pass-grid">
+      <div><div class="k">Bus</div><div class="v">4</div></div><div><div class="k">Home stop</div><div class="v">${k.home}</div></div>
+      <div><div class="k">Status</div><div class="v"><span class="chip ${cls}" style="font-size:12px">${st}</span></div></div><div><div class="k">Arrives</div><div class="v">${eta}</div></div>
+    </div>
+    <div class="pass-foot">Last scan: ${lastScan} by attendant Ravi</div>
+  </div>
+  <div class="map">${mapSVG(190)}</div>
+  <div class="row" style="justify-content:space-between;margin-top:10px;font-size:13px">
+    <span>Alert me before my stop</span>
+    <select onchange="S.lead=+this.value;S.notified={};render()" style="padding:5px 8px">
+      <option value="1" ${S.lead===1?'selected':''}>1 stop</option><option value="2" ${S.lead===2?'selected':''}>2 stops</option></select>
+  </div>
+  <div class="tl">${S.tl.length?S.tl.map(e=>`<div><span style="color:${e.cls==='bad'?'#A32D2D':'#1D9E75'}">●</span><span>${e.txt}</span><span class="t">${e.t}</span></div>`).join(''):'<div class="mut">Today\'s updates will appear here.</div>'}</div>`;
+
+  const busLine=S.ended?'Trip closed':S.atStop?`At ${stop.n}`:`Driving to ${S.route[S.seg+1].n}`;
+  const onboard=KIDS.filter(x=>S.kids[x.id].st==='onboard').length;
+  const atLast=S.seg===S.route.length-1&&S.atStop&&S.arrived;
+  $('attendant').innerHTML=`
+  <div class="row" style="justify-content:space-between"><div><div style="font-weight:600;font-size:17px">Bus 4 · ${S.trip==='morning'?'Morning':'Afternoon'}</div>
+    <div class="mut" style="font-size:13px">${busLine} · ${onboard} on board</div></div>
+    <label style="font-size:12px" class="row"><input type="checkbox" ${S.auto?'checked':''} onchange="S.auto=this.checked"> Auto-scan</label></div>
+  <button class="pri" style="width:100%;margin-top:12px;padding:14px;font-size:16px" ${S.atStop&&!S.ended?'':'disabled'} onclick="scanNext()">Scan bag tag</button>
+  <div style="margin-top:8px">${KIDS.map(x=>{const d=S.kids[x.id];
+    const chip={waiting:['Waiting','c-gray'],atschool:['At school','c-gray'],onboard:['On board','c-blue'],dropped:['Off · '+(d.dropStop||'').replace('PEC ',''),'c-green'],missed:['Missed','c-red']}[d.st];
+    const can=S.atStop&&!S.ended&&!S.blocked;
+    const btn=(d.st==='waiting'||d.st==='atschool'||d.st==='missed')?`<button ${can?'':'disabled'} onclick="scan('${x.id}','board',S.seg)">Scan on</button>`:d.st==='onboard'&&!S.blocked?`<button ${can?'':'disabled'} onclick="scan('${x.id}','drop',S.seg)">Scan off</button>`:'';
+    return `<div class="kid"><div class="av">${ini(x.name)}</div><div style="flex:1"><div style="font-size:14px;font-weight:500">${x.name}</div><div class="mut" style="font-size:12px">${x.cls} · ${x.home}</div></div><span class="chip ${chip[1]}">${chip[0]}</span>${btn}</div>`}).join('')}</div>
+  ${S.blocked?`<div class="check"><div style="font-weight:600;color:#791F1F">Trip blocked: check every seat</div>
+    <div style="font-size:12px;color:#791F1F;margin:4px 0 8px">These children were scanned on but never off.</div>
+    ${KIDS.filter(x=>S.kids[x.id].st==='onboard').map(x=>`<div class="row" style="justify-content:space-between;margin-top:6px"><span class="blink" style="font-weight:600">${x.name}</span><button class="danger" onclick="found('${x.id}')">Found · scan off</button></div>`).join('')}</div>`
+    :`<button style="width:100%;margin-top:12px" ${atLast&&!S.ended?'':'disabled'} onclick="endTrip()">${S.ended?'Trip closed ✓':'End trip'}</button>`}`;
+
+  const open=openAlerts(), acc=KIDS.filter(x=>['dropped','missed'].includes(S.kids[x.id].st)&&S.kids[x.id].st!=='onboard').length;
+  $('school').innerHTML=`
+  <div class="row" style="justify-content:space-between;margin-bottom:10px"><div style="font-weight:600;font-size:17px">Transport desk · PEC School</div><span class="mut" style="font-size:13px">${fmt(S.clock)}</span></div>
+  <div class="kpis"><div class="kpi"><div class="k">On board</div><div class="v">${onboard}</div></div>
+    <div class="kpi"><div class="k">Accounted for</div><div class="v">${acc}/${KIDS.length}</div></div>
+    <div class="kpi" style="${open.length?'background:#FCEBEB':''}"><div class="k">Open alerts</div><div class="v" style="${open.length?'color:#A32D2D':''}">${open.length}</div></div></div>
+  <div class="map">${mapSVG(170)}</div>
+  <div style="font-weight:600;font-size:14px;margin-top:14px">Alerts</div>
+  ${S.alerts.length?S.alerts.slice(0,5).map(a=>`<div class="alert ${a.done?'ok':''}"><div class="row" style="justify-content:space-between"><span style="font-weight:600;font-size:13px">${a.title}</span>
+    <span class="chip ${a.done?'c-green':'c-red'}">${a.done?'Resolved':LV[a.lvl]}</span></div>
+    <div style="font-size:12px;margin-top:3px">${a.detail}</div>
+    ${!a.done&&a.type==='wrong'?`<button style="margin-top:6px;padding:5px 10px;font-size:12px" onclick="resolveAlert(${a.id})">Child confirmed safe</button>`:''}</div>`).join(''):'<div class="mut" style="font-size:13px;margin-top:6px">No alerts. Every child is where they should be.</div>'}
+  <div style="font-weight:600;font-size:14px;margin-top:14px">${S.trip==='morning'?'Attendance check · bus scans vs class register':'Drop-off check · Bus 4 roster'}</div>
+  <table>${KIDS.map(x=>{const v=S.kids[x.id].att;const bad=/NOT|Wrong|Missed/.test(v);const good=/In class|✓|informed|dropping/.test(v);
+    return `<tr><td>${x.name}</td><td class="mut">${x.cls}</td><td style="text-align:right"><span class="chip ${bad?'c-red':good?'c-green':v==='On bus'?'c-blue':'c-gray'}">${v}</span></td></tr>`}).join('')}</table>
+  <div style="font-weight:600;font-size:14px;margin-top:14px">Live log</div>
+  <div class="feed">${S.feed.map(f=>`<div><span class="mut">${f.t}</span> <span style="color:${f.kind==='alert'?'#A32D2D':f.kind==='ok'?'#3B6D11':'inherit'}">${f.txt}</span></div>`).join('')}</div>`;
+}
+function scanNext(){
+  const i=S.seg, stop=S.route[i];
+  const next=KIDS.find(k=>{const d=S.kids[k.id];
+    if(S.trip==='morning') return stop.school?d.st==='onboard':(d.st==='waiting'&&k.home===stop.n);
+    return i===0?d.st==='atschool':(d.st==='onboard'&&k.home===stop.n)});
+  if(!next){feed('info',`No more tags expected at ${stop.n}`);render();return;}
+  const board=S.trip==='morning'?!stop.school:i===0;
+  scan(next.id,board?'board':'drop',i);
+}
+resetSim();
+</script>
+</body>
+</html>
