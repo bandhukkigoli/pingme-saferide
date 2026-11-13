@@ -37,7 +37,7 @@ Live: **https://pingme-saferide.vercel.app** (Vercel production + Neon Postgres 
 - ✅ Route editor: add / rename / reorder / delete; road re-fetched; map updates
 - ✅ Teacher view shows only that class (screenshot 13)
 - ✅ `/t/[tag]` finder flow alerts the parent, no number shown
-- 📱 Camera scan: on the real phone the camera permission prompt appears, live camera preview runs inside /bus/4, BarcodeDetector is available. Still to do: point the phone at a QR (/admin/qr) and see the child toggle
+- ✅ 01:02 (14 Nov) Camera scan on the real phone: /bus/4 → Scan bag tag → phone camera read Rohan's bag-tag QR from the laptop screen → "Rohan Bansal scanned ON", 1 on board, confirmed in the live database
 - ✅ `/join` role picker + role switcher bar on every page
 - 📱 3 phones in different roles live at once (server side verified: all screens read the same `/api/state`)
 - ✅ 3 judges join in parallel → 3 different children; presenter can target any child
