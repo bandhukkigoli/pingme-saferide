@@ -53,6 +53,12 @@ export default function JoinPage() {
   useEffect(() => {
     const id = Number(localStorage.getItem("saferide.childId"));
     if (!id) return;
+    // Inside the Android app, a parent who already joined goes straight to their child's page
+    // (the app always starts here, and a parent should never have to pick a role twice).
+    if ((window as any).Capacitor?.isNativePlatform?.() && localStorage.getItem("saferide.role") === "parent") {
+      router.replace(`/p/${id}`);
+      return;
+    }
     setSavedId(id);
     fetch("/api/state", { cache: "no-store" })
       .then((r) => r.json())
