@@ -64,7 +64,7 @@ BASE=https://pingme-saferide.vercel.app npm run test:engine
 ## How it is built (short)
 
 - Next.js 16 (App Router) + TypeScript + Tailwind v4.
-- Postgres: Neon on Vercel, PGlite on a laptop (see `lib/db.ts`).
+- Postgres: Neon on Vercel (Singapore region, next to the Vercel functions in `sin1`, close to India), PGlite on a laptop (see `lib/db.ts`).
 - Map: Leaflet with free OpenStreetMap tiles.
 - Road routes: the free OSRM server, saved in `db/routes.json` so the demo works offline.
 - QR codes: the `qrcode` package. Camera scan: the browser's `BarcodeDetector`, with `html5-qrcode` as a backup.
