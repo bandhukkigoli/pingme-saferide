@@ -46,4 +46,4 @@ Live: **https://pingme-saferide.vercel.app** (Vercel production + Neon Postgres 
 - ✅ README, EXPLAIN.md, HURDLES.md, docs/screenshots, docs/CP3_hurdles.md
 
 ## Phase 3 stretch
-- ✅ 01:37 (14 Nov) `dist/SafeRide.apk` built (3.97 MB, Capacitor 6): live site + Tag-bus icon + native "SafeRide alarms" channel with custom ringtone. Install + on-phone test pending (phone disconnected)
+- ✅ 02:45 (14 Nov) `dist/SafeRide.apk` v1.2 (4 MB, Capacitor 6) TESTED on the real phone over USB: opens straight to the parent page, full-screen alarm with ringtone (app audio stream active) + vibration (24 buzz records) until "I'm going", answer shown on the school log; with the app in the background Android showed a heads-up "Head to the stop now" notification on the high-priority "SafeRide alarms" channel with the custom ringtone; friendly "No connection · Retry" screen recovers by itself. Download: home page link or /SafeRide.apk

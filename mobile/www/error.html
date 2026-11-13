@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<!-- Shown by the Android app when the live site can't be reached (bad network). Retries by itself. -->
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SafeRide</title></head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#0F6E56;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:24px">
+<div>
+  <h1 style="margin:0 0 8px">No connection</h1>
+  <p style="color:#E1F5EE;margin:0 0 24px">SafeRide couldn't reach the server. Check mobile data or Wi-Fi.<br>Trying again in <span id="s">5</span> s…</p>
+  <button onclick="go()" style="font:inherit;font-size:18px;padding:14px 32px;border:0;border-radius:12px;background:#fff;color:#0F6E56;font-weight:600">Retry now</button>
+</div>
+<script>
+  // Go back to the live app; the app opens the parent page directly if this phone already joined.
+  function go(){ location.href = "https://pingme-saferide.vercel.app/join"; }
+  let n = 5; setInterval(() => { n--; document.getElementById("s").textContent = Math.max(n, 0); if (n <= 0) go(); }, 1000);
+</script>
+</body></html>

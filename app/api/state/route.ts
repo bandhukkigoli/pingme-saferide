@@ -5,9 +5,6 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const child = Number(new URL(req.url).searchParams.get("child")) || null;
   const t0 = Date.now();
-  // Temporary diagnostic: log polls coming from the Android app's web view ("wv" in the user agent).
-  const ua = req.headers.get("user-agent") || "";
-  if (/; wv\)/.test(ua)) console.log(`app-poll child=${child} ua=${ua.slice(0, 80)}`);
   try {
     const world = await buildWorld(child);
     // Server-Timing tells the browser's dev tools how long the server itself took (for speed checks).
