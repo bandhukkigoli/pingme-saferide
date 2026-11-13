@@ -119,7 +119,9 @@ export default function SchoolPage() {
           {/* Default view: only children who need a look. The full table is one tap away. */}
           <div style={{ fontWeight: 600, fontSize: 13, marginTop: 8 }}>Needs attention ({attention.length})</div>
           {attention.length === 0 ? (
-            <div className="mut" style={{ fontSize: 13, marginTop: 6 }}>All children accounted for ✓</div>
+            <div className="mut" style={{ fontSize: 13, marginTop: 6 }}>
+              {world.buses.some((b) => b.trip) ? "Nothing needs attention ✓" : "No trip running yet. Start one from Admin."}
+            </div>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
               <tbody>
