@@ -11,7 +11,8 @@ import path from "node:path";
 type Row = Record<string, any>;
 type Runner = { query: (text: string, params?: unknown[]) => Promise<Row[]>; exec: (text: string) => Promise<void> };
 
-const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+// SIN_DATABASE_URL = the Neon database in Singapore (close to India); DATABASE_URL = the older US one.
+const url = process.env.SIN_DATABASE_URL || process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
 // Keep one connection per server process (Next.js dev reloads modules, so store it on globalThis).
 const g = globalThis as unknown as { __db?: Promise<Runner> };

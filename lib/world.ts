@@ -155,7 +155,7 @@ export async function buildWorld(childId: number | null): Promise<World> {
   let me: ParentView | null = null;
   if (childId) {
     const c = (await q("SELECT * FROM children WHERE id=$1", [childId]))[0];
-    if (c) me = await parentView(c, childLite(c), views, tripIdList);
+    if (c) me = await parentView(c, childLite(c), views, tripIdList, buses);
   }
 
   return {
@@ -170,7 +170,7 @@ export async function buildWorld(childId: number | null): Promise<World> {
   };
 }
 
-async function parentView(c: any, child: ChildLite, views: BusView[], tripIds: number[]): Promise<ParentView> {
+async function parentView(c: any, child: ChildLite, views: BusView[], tripIds: number[], buses: Awaited<ReturnType<typeof advanceAll>>["buses"]): Promise<ParentView> {
   const [prefs, events] = await Promise.all([
     q("SELECT alert_radius_m FROM parent_prefs WHERE child_id=$1", [c.id]),
     q(
@@ -188,12 +188,11 @@ async function parentView(c: any, child: ChildLite, views: BusView[], tripIds: n
   // ETA: road distance from the bus to the child's stop, divided by the average speed.
   let eta: ParentView["eta"] = null;
   if (view) {
-    const r = await getRoutes();
-    const br = r.buses.find((b) => b.bus.id === c.bus_id);
+    // Re-use the bus routes already loaded for this request (no extra database trip).
+    const br = buses.get(c.bus_id);
     if (br) {
       const kind = view.trip?.kind ?? "morning";
-      const stopsM = br.stops.map((s) => ({ id: s.id, bus_id: s.busId, name: s.name, lat: s.lat, lng: s.lng, seq: s.seq, is_school: s.isSchool }));
-      const plan = makePlan(c.bus_id, view.busName, br.route, stopsM, kind);
+      const plan = makePlan(c.bus_id, view.busName, br.route, br.stops, kind);
       // Morning: the bus comes to the home stop. Afternoon: the bus brings the child to the home stop.
       // Once a child is on the morning bus, count down to school instead of to the home stop.
       const toSchool = kind === "morning" && rider?.state === "onboard";
