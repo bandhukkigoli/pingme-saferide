@@ -66,8 +66,7 @@ export async function scan(busId: number, opts: { childId?: number; tagCode?: st
   if (!ctx) throw new UserError("No trip is running for this bus. Start one from Admin.", 409);
   const { trip, plan, t, pos } = ctx;
   if (trip.status === "closed") throw new UserError("This trip is closed.", 409);
-  if (trip.status === "blocked") throw new UserError("Trip is blocked: use “Found · scan off” for children still on board.", 409);
-  if (pos.atIdx === null) throw new UserError("The bus is driving. Scan bag tags when it stands at a stop.", 409);
+  if (trip.status !== "blocked" && pos.atIdx === null) throw new UserError("The bus is driving. Scan bag tags when it stands at a stop.", 409);
   let childId = opts.childId;
   if (!childId && opts.tagCode) {
     const [tag] = await q<{ child_id: number | null; registered: boolean }>("SELECT child_id, registered FROM tags WHERE code=$1", [opts.tagCode.toUpperCase()]);
@@ -76,6 +75,13 @@ export async function scan(busId: number, opts: { childId?: number; tagCode?: st
     childId = tag.child_id;
   }
   if (!childId) throw new UserError("Which child? Send childId or tagCode.");
+  // Trip blocked: scanning a missing child's tag = "Found · scan off".
+  if (trip.status === "blocked") {
+    const r = await (await import("./sim")).foundChild(trip, plan, childId, t);
+    if (!r.ok) throw new UserError("Trip is blocked: scan the tag of a child who is still on board.", 409);
+    const [c] = await q<{ name: string }>("SELECT name FROM children WHERE id=$1", [childId]);
+    return { childName: c?.name, action: "off" as const };
+  }
   let action = opts.action;
   if (!action) {
     // Toggle: on if not on board, off if on board.
@@ -83,7 +89,7 @@ export async function scan(busId: number, opts: { childId?: number; tagCode?: st
     if (!a) throw new UserError("This child is not on this bus's list today.", 409);
     action = a.state === "onboard" ? "off" : "on";
   }
-  const res = await (await import("./sim")).doScan(trip, plan, childId, action, pos.atIdx, t, true);
+  const res = await (await import("./sim")).doScan(trip, plan, childId, action, pos.atIdx ?? plan.stops.length - 1, t, true);
   if (!res.ok) throw new UserError(res.error || "Scan failed", 409);
   return { childName: res.name, action };
 }
