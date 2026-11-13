@@ -24,7 +24,7 @@ Live: **https://pingme-saferide.vercel.app** (Vercel production + Neon Postgres 
 - ✅ Live production URL works with no login
 - ✅ Logo, favicon, PWA manifest + 192/512 icons = "Tag bus" (all served 200)
 - ✅ Live ETA (km + min) always shown; radius chooser shows minutes; ring = chosen radius; bus on real OSM roads (screenshots 04, 05, 09)
-- 📱 Background-tab Notification: blocked on the test phone because Android notifications for Chrome are switched off by the owner → re-test after enabling
+- ✅ 00:52 (14 Nov) Background-tab Notification on the real phone: Chrome sent to background, Android posted "Head to the stop now · Bus 4 is 992 m away, about 4 min. Send Diya out." (read from `dumpsys notification`). Reopening the page re-shows the unanswered alarm (fixed + deployed 00:54)
 - ✅ 00:10 (14 Nov) ALARM MODE on a real Android phone (Realme RMX3750, Android 15, Chrome over USB): /join → Parent gave Diya; full-screen alarm appeared for “Bus is near” + “Arriving now”, ringtone confirmed playing from Chrome (Android audio log), “I'm going” logged on the school dashboard. 00:21 re-test with DND off: Android vibration log shows Chrome buzzing 600 ms repeatedly during the alarm, stopping after "I'm going". Site notification permission now granted (background-notification test still to run)
 - ✅ Normal morning: radius → arriving → boarded → reached school
 - ✅ Normal afternoon: boarded → radius/arriving → dropped safely
@@ -37,7 +37,7 @@ Live: **https://pingme-saferide.vercel.app** (Vercel production + Neon Postgres 
 - ✅ Route editor: add / rename / reorder / delete; road re-fetched; map updates
 - ✅ Teacher view shows only that class (screenshot 13)
 - ✅ `/t/[tag]` finder flow alerts the parent, no number shown
-- 📱 Camera scan of a printed QR (print `/admin/qr`; scanner code uses BarcodeDetector + html5-qrcode fallback)
+- 📱 Camera scan: on the real phone the camera permission prompt appears, live camera preview runs inside /bus/4, BarcodeDetector is available. Still to do: point the phone at a QR (/admin/qr) and see the child toggle
 - ✅ `/join` role picker + role switcher bar on every page
 - 📱 3 phones in different roles live at once (server side verified: all screens read the same `/api/state`)
 - ✅ 3 judges join in parallel → 3 different children; presenter can target any child
