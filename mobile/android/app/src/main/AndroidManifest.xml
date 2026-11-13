@@ -38,4 +38,9 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Camera: the attendant scans bag-tag QR codes inside the app (asked only when they tap "Scan bag tag"). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- Vibrate: the alarm buzzes until the parent answers. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 </manifest>
