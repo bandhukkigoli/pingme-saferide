@@ -15,8 +15,12 @@ export function usePoll<T>(url: string | null, ms = 1500) {
     const load = async () => {
       if (busy.current) return; // skip if the last request is still running
       busy.current = true;
+      // Give up on a request that hangs (bad mobile network) after 6 s, so the next poll can try again.
+      // Without this, one stuck request would freeze the screen.
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 6000);
       try {
-        const res = await fetch(url, { cache: "no-store" });
+        const res = await fetch(url, { cache: "no-store", signal: ctrl.signal });
         const json = await res.json();
         if (!stop) {
           if (res.ok) {
@@ -27,6 +31,7 @@ export function usePoll<T>(url: string | null, ms = 1500) {
       } catch {
         if (!stop) setError("Connection lost, retrying…");
       } finally {
+        clearTimeout(timer);
         busy.current = false;
       }
     };
