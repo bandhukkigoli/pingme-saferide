@@ -1,39 +1,46 @@
 # PROGRESS (times IST, 13–14 Nov 2026)
 
+Live: **https://pingme-saferide.vercel.app** (Vercel production + Neon Postgres via Vercel Marketplace)
+
 ## Phase 0: Foundations
 - ✅ 22:40 Next.js 16 + TypeScript + Tailwind scaffold, logo/favicon (`public/icon.svg`)
 - ✅ 22:45 `lib/types.ts`, `db/schema.sql`, `db/seed.sql` (20 fake children, 2 buses, 3 unregistered tags), `docs/api.md`
 - ✅ 22:40 Real road routes from OSRM cached in `db/routes.json` (Bus 4: 13.8 km, Bus 2: 7.9 km)
-- ❌ Vercel project + Neon database: waiting for the one-click Vercel approval
+- ✅ 00:05 Vercel project created + deployed via the already-logged-in Vercel CLI
+- ✅ 00:15 Neon Postgres provisioned via Vercel Marketplace, connected, redeployed
 
 ## Phase 1: Core loop
-- ✅ 23:25 Engine (`lib/sim.ts`): bus position = pure function of time, idempotent catch-up, radius + arriving alerts, missed bus, wrong stop, End-trip block, Found, escalation
-- ✅ 23:25 All 21 API routes
-- ✅ 23:20 Parent page, ALARM MODE, takeovers, Hindi/English, /join, /t/[tag], PWA (agent B)
-- ✅ 23:15 Attendant, school, approvals, route editor, teacher, admin demo, admin QR, landing (agent C)
-- ✅ 23:35 `node tests/engine.test.mjs`: all 4 scenarios × both trips PASS locally (31 checks)
-- ✅ 23:40 Browser check at 375 px: parent page (map, ETA, radius ring, alarm), school desk, attendant
-- ✅ 23:45 `next build` passes
-- ❌ Deployed + tested on the live URL (blocked on Vercel approval)
+- ✅ 23:25 Engine (`lib/sim.ts`) + all 21 API routes
+- ✅ 23:20 Parent / attendant / school / admin pages (agents B + C)
+- ✅ 23:35 Engine test passes locally
+- ✅ 00:20 Engine test passes on the LIVE URL
 
-## Final acceptance checklist (ticked only after testing on the LIVE URL)
-- [ ] Live production URL works on a phone with no login
-- [ ] Logo, favicon, PWA icon = "Tag bus"
-- [ ] Live ETA, radius chooser with minutes, ring matches radius, bus on real roads
-- [ ] Background-tab Notification
-- [ ] ALARM MODE on a real Android phone
-- [ ] Normal morning / Normal afternoon
-- [ ] Missed bus → parent answer updates attendance
-- [ ] Wrong stop → desk resolves
-- [ ] Left on bus → blocked → escalation → Found → closed
-- [ ] New rider via unregistered tag → approval → on attendant list
-- [ ] Change my stop → nearest stop → approval → used from effective date
-- [ ] Route editor add/rename/reorder/delete
-- [ ] Teacher view shows only that class
-- [ ] /t/[tag] finder flow, no number shown
-- [ ] Camera scan of a printed QR on a real phone
-- [ ] /join role picker + role bar; 3 phones in different roles
-- [ ] 3 judges get different children; presenter can target any
-- [ ] Hindi/English switches all alert texts
-- [ ] No personal data / no person location (grep + EXPLAIN.md)
-- [ ] README, EXPLAIN.md, HURDLES.md, docs/screenshots
+## Phase 2: Everything else
+- ✅ 00:35 `tests/flows.test.mjs` passes on LIVE: 3 judges join in parallel, new rider, stop change (today + future date), bag finder, route editor
+- ✅ 00:50 19 screenshots at 375 px from LIVE in `docs/screenshots/`, no console errors, nothing wider than 375 px
+- ✅ 00:55 README.md, EXPLAIN.md
+
+## Final acceptance checklist (✅ = tested on the live URL by me; 📱 = needs a real phone, see README)
+- ✅ Live production URL works with no login
+- ✅ Logo, favicon, PWA manifest + 192/512 icons = "Tag bus" (all served 200)
+- ✅ Live ETA (km + min) always shown; radius chooser shows minutes; ring = chosen radius; bus on real OSM roads (screenshots 04, 05, 09)
+- 📱 Background-tab Notification (code done: `components/parent/alarm.ts`; needs a phone with the tab in background)
+- 📱 ALARM MODE on a real Android phone (works in browser: screenshot 06; ringtone/vibration need a real phone)
+- ✅ Normal morning: radius → arriving → boarded → reached school
+- ✅ Normal afternoon: boarded → radius/arriving → dropped safely
+- ✅ Missed bus: red alert → parent answer updates school attendance
+- ✅ Wrong stop: red alert to parent + school; desk resolves
+- ✅ Left on bus: End trip blocked → "Boarded but NOT in class" → escalation → Found (button OR tag scan) → green → trip closes
+- ✅ Alerts on every trip, morning and afternoon (engine test, both kinds)
+- ✅ New rider via unregistered tag → approval → on attendant list
+- ✅ Change my stop → nearest stop → approval → attendant list + alerts use the new stop from the effective date
+- ✅ Route editor: add / rename / reorder / delete; road re-fetched; map updates
+- ✅ Teacher view shows only that class (screenshot 13)
+- ✅ `/t/[tag]` finder flow alerts the parent, no number shown
+- 📱 Camera scan of a printed QR (print `/admin/qr`; scanner code uses BarcodeDetector + html5-qrcode fallback)
+- ✅ `/join` role picker + role switcher bar on every page
+- 📱 3 phones in different roles live at once (server side verified: all screens read the same `/api/state`)
+- ✅ 3 judges join in parallel → 3 different children; presenter can target any child
+- ✅ Hindi/English toggle switches alert texts (screenshot 09)
+- ✅ No real personal data, no person location (grep for geolocation APIs: no matches; EXPLAIN.md)
+- ✅ README, EXPLAIN.md, HURDLES.md, docs/screenshots, docs/CP3_hurdles.md

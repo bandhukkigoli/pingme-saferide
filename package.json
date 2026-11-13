@@ -8,7 +8,9 @@
     "start": "next start",
     "routes": "node scripts/fetch-routes.mjs",
     "test:engine": "node tests/engine.test.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:flows": "node tests/flows.test.mjs",
+    "screenshots": "node tests/e2e/screens.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.1",
