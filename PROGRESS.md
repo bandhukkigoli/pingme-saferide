@@ -39,7 +39,7 @@ Live: **https://pingme-saferide.vercel.app** (Vercel production + Neon Postgres 
 - ✅ `/t/[tag]` finder flow alerts the parent, no number shown
 - ✅ 01:02 (14 Nov) Camera scan on the real phone: /bus/4 → Scan bag tag → phone camera read Rohan's bag-tag QR from the laptop screen → "Rohan Bansal scanned ON", 1 on board, confirmed in the live database
 - ✅ `/join` role picker + role switcher bar on every page
-- 📱 3 phones in different roles live at once (server side verified: all screens read the same `/api/state`)
+- ✅ Different roles live at once: real phone as parent ↔ laptop school desk (alarm answer shown live), real phone as attendant ↔ laptop (camera scan shown live); all screens read the same `/api/state`. (3 separate physical phones not tried: only one phone available)
 - ✅ 3 judges join in parallel → 3 different children; presenter can target any child
 - ✅ Hindi/English toggle switches alert texts (screenshot 09)
 - ✅ No real personal data, no person location (grep for geolocation APIs: no matches; EXPLAIN.md)
