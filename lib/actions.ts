@@ -349,7 +349,8 @@ export async function addStop(busId: number, name: string, lat: number, lng: num
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new UserError("Tap the map to place the stop.");
   const [school] = await q("SELECT seq FROM stops WHERE bus_id=$1 AND is_school", [busId]);
   if (!school) throw new UserError("Bus not found.", 404);
-  await q("INSERT INTO stops (bus_id, name, lat, lng, seq) VALUES ($1,$2,$3,$4,$5)", [busId, name, lat, lng, school.seq - 0.5]);
+  // Same seq as the school: rebuildRoute() sorts non-school stops first, so it lands just before the school.
+  await q("INSERT INTO stops (bus_id, name, lat, lng, seq) VALUES ($1,$2,$3,$4,$5)", [busId, name, lat, lng, school.seq]);
   await rebuildRoute(busId);
 }
 
