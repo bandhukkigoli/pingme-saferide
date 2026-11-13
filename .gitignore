@@ -11,3 +11,8 @@ next-env.d.ts
 
 .vercel
 .env*
+mobile/node_modules
+mobile/android/app/build
+mobile/android/.gradle
+mobile/android/build
+dist/*.apk.tmp

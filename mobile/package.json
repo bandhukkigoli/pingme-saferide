@@ -1,0 +1,17 @@
+{
+  "name": "saferide-android",
+  "private": true,
+  "description": "Android app shell for PingME SafeRide (Capacitor). It opens the live website and adds native alarm notifications.",
+  "scripts": {
+    "sync": "cap sync android",
+    "build:apk": "cd android && gradlew.bat assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.3",
+    "@capacitor/core": "^6.2.3",
+    "@capacitor/local-notifications": "^6.1.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.3"
+  }
+}

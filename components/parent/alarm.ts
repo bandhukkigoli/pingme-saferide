@@ -104,7 +104,34 @@ export function stopRing() {
 }
 
 // ---- Phone notifications (shown when the page is in the background) ----
+
+// Inside the Android app (Capacitor), window.Capacitor gives us NATIVE notifications:
+// a high-priority "SafeRide alarms" channel with our own ringtone (res/raw/saferide_alarm.wav).
+// In a normal browser this is undefined and we use the web Notification API instead.
+function nativeNotifications(): any | null {
+  const cap = (window as any).Capacitor;
+  return cap?.isNativePlatform?.() ? cap.Plugins?.LocalNotifications ?? null : null;
+}
+let channelsReady = false;
+async function ensureChannels(LN: any) {
+  if (channelsReady) return;
+  // importance 5 = makes sound + pops up on screen; the alarm channel uses our custom ring.
+  await LN.createChannel({ id: "saferide-alarm", name: "SafeRide alarms", importance: 5, sound: "saferide_alarm.wav", vibration: true, visibility: 1 });
+  await LN.createChannel({ id: "saferide-info", name: "SafeRide updates", importance: 4, vibration: true, visibility: 1 });
+  channelsReady = true;
+}
+
 export async function askNotificationPermission() {
+  const LN = nativeNotifications();
+  if (LN) {
+    try {
+      const r = await LN.requestPermissions();
+      await ensureChannels(LN);
+      return r.display === "granted" ? "granted" : "denied";
+    } catch {
+      return "denied";
+    }
+  }
   if (typeof Notification === "undefined") return "denied";
   if (Notification.permission !== "default") return Notification.permission;
   try {
@@ -115,6 +142,16 @@ export async function askNotificationPermission() {
 }
 
 export async function showSystemNotification(title: string, body: string, tag: string, urgent: boolean) {
+  const LN = nativeNotifications();
+  if (LN) {
+    try {
+      await ensureChannels(LN);
+      // Android needs a whole-number id; take the digits from our tag (e.g. "saferide-57" -> 57).
+      const id = Number(tag.replace(/\D/g, "")) || Date.now() % 100000;
+      await LN.schedule({ notifications: [{ id, title, body, channelId: urgent ? "saferide-alarm" : "saferide-info", smallIcon: "ic_stat_saferide", iconColor: "#0F6E56", ongoing: false, autoCancel: true }] });
+    } catch {}
+    return;
+  }
   if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
   const options: any = {
     body,

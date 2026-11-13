@@ -1,0 +1,19 @@
+{
+  "appId": "app.pingme.saferide",
+  "appName": "SafeRide",
+  "webDir": "www",
+  "server": {
+    "url": "https://pingme-saferide.vercel.app/join",
+    "cleartext": false
+  },
+  "android": {
+    "backgroundColor": "#0F6E56"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_saferide",
+      "iconColor": "#0F6E56",
+      "sound": "saferide_alarm.wav"
+    }
+  }
+}
