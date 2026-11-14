@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>PingME SafeRide: Hurdles, Approach, Difference</title>
+<style>
+  @page { size: A4; margin: 13mm 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; font-size: 10.2pt; line-height: 1.38; color: #1d2a26; margin: 0; }
+  .top { display:flex; justify-content:space-between; align-items:baseline; border-bottom: 3px solid #0F6E56; padding-bottom: 4px; margin-bottom: 8px; }
+  .top h1 { font-size: 17pt; margin: 0; color: #0F6E56; }
+  .top span { font-size: 9pt; color: #5b6b66; }
+  h2 { font-size: 12.5pt; color: #fff; background: #0F6E56; padding: 3px 9px; border-radius: 5px; margin: 10px 0 5px; }
+  ul { margin: 0; padding-left: 17px; }
+  li { margin: 0 0 3.5px; }
+  b { color: #0b4f3e; }
+  .foot { margin-top: 9px; font-size: 8.6pt; color: #5b6b66; border-top: 1px solid #cfe3dc; padding-top: 4px; }
+</style></head>
+<body>
+<div class="top"><h1>PingME SafeRide</h1><span>Live school-bus tracking &amp; parent alerts · pingme-saferide.vercel.app</span></div>
+
+<h2>1. Hurdles Faced</h2>
+<ul>
+  <li><b>No always-on server.</b> Vercel runs code only when a page asks, so there is no background worker to move the bus or send alerts.</li>
+  <li><b>Missed alerts.</b> At demo speed the bus could cross the "bus is near" radius <i>and</i> arrive between two phone polls, so key alerts were skipped.</li>
+  <li><b>Duplicate alerts.</b> Several phones polling at once could each create the same alert.</li>
+  <li><b>Slow from India.</b> Server and database ran in the US: every 1.5 s poll crossed the world (~0.45 s of database waiting).</li>
+  <li><b>Real-phone failures.</b> The Android app opened on the role screen and never listened, the notification permission was never asked, and one hung request on a flaky Jio network froze the screen for 16 s.</li>
+  <li><b>Alarms that would not stop.</b> After a demo reset, an old alarm kept ringing in a background tab.</li>
+  <li><b>Unrealistic routes.</b> The given stop order zig-zagged (16.1 km) and fixed timings made the bus "drive" at 80 km/h.</li>
+  <li><b>Privacy.</b> Parents need live info without anyone's personal location or phone number being exposed.</li>
+</ul>
+
+<h2>2. How You Are Tackling Them</h2>
+<ul>
+  <li><b>Bus position = a pure function of time.</b> Every poll "catches up" the trip; a compare-and-swap step counter plus unique keys mean an alert is created exactly once, no matter how many phones ask.</li>
+  <li><b>Scan the gap, not the moment.</b> Each poll checks the whole stretch of time since the previous one (every 0.1 sim-minute), and the stop-arrival itself also fires "arriving now" as a backup, so no alert is skipped.</li>
+  <li><b>Moved closer to users.</b> Database in Singapore + functions in <code>sin1</code>, buses processed in parallel: server work per poll fell from ~300 ms to ~30 ms (measured). The bus marker now glides smoothly.</li>
+  <li><b>Tested on a real phone over USB</b> with the web-view debugger: auto-open the child's page, fixed permission flow, 6 s request timeout with retry, and a friendly "No connection, retrying" screen.</li>
+  <li><b>Self-closing alarms:</b> an alarm stops when its alert is gone or something newer happened; it rings until the parent answers "I'm going".</li>
+  <li><b>Real road data:</b> compared 4 stop orders on OSRM and picked the shortest (13.8 km); ETA uses real remaining road distance ÷ measured speed.</li>
+  <li><b>Automated tests</b> (engine, every flow on the live URL, 19 screenshots) catch regressions before each deploy.</li>
+</ul>
+
+<h2>3. What Makes Our Solution Different</h2>
+<ul>
+  <li><b>Only the bus is tracked, never a person.</b> No child or parent location is stored; phone numbers are always masked; all demo data is fake.</li>
+  <li><b>Action, not just a dot on a map.</b> Parents get a full-screen alarm ("Head to the stop now, 3 min") that rings and vibrates until they answer, and the school desk sees the reply live.</li>
+  <li><b>Closes the loop on every child.</b> RFID-style tag scans on and off the bus; a missing child blocks the trip until found, and wrong-stop drop-offs are flagged instantly.</li>
+  <li><b>One system, five roles:</b> parent, driver/attendant, school transport desk, class teacher and admin, all live from the same data, plus stop-change requests with school approval and a route editor.</li>
+  <li><b>Works on cheap phones and weak networks:</b> a 4 MB Android app (native heads-up alarms with a custom ringtone) or just a browser link; no login, no app-store wait, near-zero hosting cost.</li>
+</ul>
+
+<div class="foot">Live demo: https://pingme-saferide.vercel.app · Android app: /SafeRide.apk · Built with Next.js, Neon Postgres (Singapore), Leaflet + OpenStreetMap, Capacitor.</div>
+</body></html>
